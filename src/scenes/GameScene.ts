@@ -4,6 +4,7 @@ import { UI } from "@/components/UI";
 
 export class GameScene extends BaseScene {
 	private background: Phaser.GameObjects.Image;
+	private trampoline: Phaser.GameObjects.Image;
 	private turtles: Turtle[];
 	private ui: UI;
 
@@ -17,6 +18,8 @@ export class GameScene extends BaseScene {
 		this.background = this.add.image(0, 0, "background");
 		this.background.setOrigin(0);
 		this.fitToScreen(this.background);
+
+		this.trampoline = this.add.image(0.3 * this.W, 0.75 * this.H, "trampoline");
 
 		this.turtles = [];
 		for (let i = 0; i < 5; i++) {
@@ -33,8 +36,8 @@ export class GameScene extends BaseScene {
 	}
 
 	addTurtle() {
-		let x = this.W * (0.25 + 0.5 * Math.random());
-		let y = this.H * (0.5 + 0.25 * Math.random());
+		let x = this.W * (0.5 + 0.4 * Math.random());
+		let y = this.H * (0.6 + 0.2 * Math.random());
 		let turtle = new Turtle(this, x, y);
 		turtle.on("action", () => {
 			turtle.doABarrelRoll();

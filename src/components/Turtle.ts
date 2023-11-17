@@ -21,6 +21,7 @@ export class Turtle extends Button {
 	// Controls
 	public velocity: Phaser.Math.Vector2;
 	private border: { [key: string]: number };
+	private isDragged: boolean;
 	private dragOffset: Phaser.Math.Vector2;
 
 	constructor(scene: GameScene, x: number, y: number) {
@@ -46,6 +47,7 @@ export class Turtle extends Button {
 		};
 
 		/* Input */
+		this.isDragged = false;
 		this.dragOffset = new Phaser.Math.Vector2();
 		this.bindInteractive(this.sprite, true);
 	}
@@ -74,14 +76,14 @@ export class Turtle extends Button {
 	}
 
 	onDragStart(pointer: Phaser.Input.Pointer, dragX: number, dragY: number) {
+		this.isDragged = true;
 		this.dragOffset.set(dragX, dragY);
+		this.sprite.setTexture("turtle_jumping");
 	}
 
 	onDrag(pointer: Phaser.Input.Pointer, dragX: number, dragY: number) {
-		this.setPosition(
-			dragX + this.dragOffset.x,
-			dragY + this.dragOffset.y,
-		);
+		super.onDrag(pointer, dragX, dragY);
+		this.setPosition(dragX + this.dragOffset.x, dragY + this.dragOffset.y);
 	}
 
 	onDragEnd(
@@ -89,7 +91,10 @@ export class Turtle extends Button {
 		dragX: number,
 		dragY: number,
 		dropped: boolean
-	) {}
+	) {
+		this.isDragged = false;
+		this.sprite.setTexture("turtle_waiting");
+	}
 
 	doABarrelRoll() {
 		if (!this.tween || !this.tween.isActive()) {
