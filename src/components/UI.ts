@@ -12,7 +12,7 @@ export class UI extends Phaser.GameObjects.Container {
 		scene.add.existing(this);
 		this.scene = scene;
 
-		const panelHeight = 200;
+		const panelHeight = 150;
 
 		this.panel = this.scene.add.container(0, 0);
 		this.add(this.panel);
@@ -34,7 +34,7 @@ export class UI extends Phaser.GameObjects.Container {
 
 		this.panel.setPosition(
 			this.scene.W - this.background.displayWidth / 2 - 30,
-			this.scene.H - this.background.displayHeight / 2 - 30
+			this.background.displayHeight / 2 + 30
 		);
 	}
 

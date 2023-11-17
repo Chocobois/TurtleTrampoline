@@ -1,10 +1,10 @@
 import { BaseScene } from "@/scenes/BaseScene";
-import { Player } from "@/components/Player";
+import { Turtle } from "@/components/Turtle";
 import { UI } from "@/components/UI";
 
 export class GameScene extends BaseScene {
 	private background: Phaser.GameObjects.Image;
-	private player: Player;
+	private turtles: Turtle[];
 	private ui: UI;
 
 	constructor() {
@@ -18,52 +18,27 @@ export class GameScene extends BaseScene {
 		this.background.setOrigin(0);
 		this.fitToScreen(this.background);
 
-		this.player = new Player(this, this.CX, this.CY);
-		this.player.on("action", () => {
-			this.player.doABarrelRoll();
-		});
+		this.turtles = [];
+		for (let i = 0; i < 5; i++) {
+			this.addTurtle();
+		}
 
 		this.ui = new UI(this);
-
-		this.initTouchControls();
 	}
 
 	update(time: number, delta: number) {
-		this.player.update(time, delta);
+		this.turtles.forEach((turtle) => {
+			turtle.update(time, delta);
+		});
 	}
 
-
-	initTouchControls() {
-		this.input.addPointer(2);
-
-		// let touchArea = this.add.rectangle(0, 0, this.W, this.H, 0xFFFFFF).setOrigin(0).setAlpha(0.001);
-		// touchArea.setInteractive({ useHandCursor: true, draggable: true });
-
-		let touchId: number = -1;
-		let touchButton: number = -1;
-
-		this.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
-			if (!this.player.isTouched) {
-				this.player.touchStart(pointer.x, pointer.y);
-				touchId = pointer.id;
-				touchButton = pointer.button;
-			}
-			else if (this.player.isTouched && !this.player.isTapped) { // Use second touch point as a trigger
-				this.player.doABarrelRoll();
-			}
+	addTurtle() {
+		let x = this.W * (0.25 + 0.5 * Math.random());
+		let y = this.H * (0.5 + 0.25 * Math.random());
+		let turtle = new Turtle(this, x, y);
+		turtle.on("action", () => {
+			turtle.doABarrelRoll();
 		});
-
-		this.input.on('pointermove', (pointer: Phaser.Input.Pointer) => {
-			if (touchId == pointer.id) {
-				this.player.touchDrag(pointer.x, pointer.y);
-			}
-		});
-
-		this.input.on('pointerup', (pointer: Phaser.Input.Pointer) => {
-			if (touchId == pointer.id && touchButton == pointer.button) {
-				// this.ui.debug.setText(`${new Date().getTime()} - id:${pointer.id} button:${pointer.button}`);
-				this.player.touchEnd(pointer.x, pointer.y);
-			}
-		});
+		this.turtles.push(turtle);
 	}
 }

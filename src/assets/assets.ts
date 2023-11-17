@@ -5,9 +5,13 @@ import { image, sound, music, loadFont, spritesheet } from './util';
 const images: Image[] = [
 	// Backgrounds
 	image('backgrounds/background', 'background'),
+	image('backgrounds/trampoline', 'trampoline'),
 
 	// Characters
 	image('characters/player', 'player'),
+	image('characters/turtle_jumping', 'turtle_jumping'),
+	image('characters/turtle_stuck', 'turtle_stuck'),
+	image('characters/turtle_waiting', 'turtle_waiting'),
 
 	// Items
 	image('items/coin', 'coin'),
