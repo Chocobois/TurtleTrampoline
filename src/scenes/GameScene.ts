@@ -1,12 +1,20 @@
 import { BaseScene } from "@/scenes/BaseScene";
-import { Turtle } from "@/components/Turtle";
+import { OverworldState } from "@/scenes/OverworldState";
+import { ShopState } from "@/scenes/ShopState";
 import { UI } from "@/components/UI";
 
+export enum State {
+	Overworld = "Overworld",
+	Shop = "Shop",
+}
+
 export class GameScene extends BaseScene {
-	private background: Phaser.GameObjects.Image;
-	private trampoline: Phaser.GameObjects.Image;
-	private turtles: Turtle[];
+	private overworld: OverworldState;
+	private shop: ShopState;
 	private ui: UI;
+
+	private state: State;
+	private health: number;
 
 	constructor() {
 		super({ key: "GameScene" });
@@ -15,33 +23,24 @@ export class GameScene extends BaseScene {
 	create(): void {
 		this.fade(false, 200, 0x000000);
 
-		this.background = this.add.image(0, 0, "background");
-		this.background.setOrigin(0);
-		this.fitToScreen(this.background);
+		this.state = State.Overworld;
+		this.health = 0;
 
-		this.trampoline = this.add.image(0.3 * this.W, 0.75 * this.H, "trampoline");
-
-		this.turtles = [];
-		for (let i = 0; i < 5; i++) {
-			this.addTurtle();
-		}
-
+		this.overworld = new OverworldState(this);
+		this.shop = new ShopState(this);
 		this.ui = new UI(this);
+
+		this.setState(State.Overworld);
 	}
 
 	update(time: number, delta: number) {
-		this.turtles.forEach((turtle) => {
-			turtle.update(time, delta);
-		});
+		this.overworld.update(time, delta);
+		this.shop.update(time, delta);
 	}
 
-	addTurtle() {
-		let x = this.W * (0.5 + 0.4 * Math.random());
-		let y = this.H * (0.6 + 0.2 * Math.random());
-		let turtle = new Turtle(this, x, y);
-		turtle.on("action", () => {
-			turtle.doABarrelRoll();
-		});
-		this.turtles.push(turtle);
+	setState(state: State) {
+		this.state = state;
+		this.overworld.setVisible(state == State.Overworld);
+		this.shop.setVisible(state == State.Shop);
 	}
 }

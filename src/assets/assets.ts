@@ -4,7 +4,8 @@ import { image, sound, music, loadFont, spritesheet } from './util';
 /* Images */
 const images: Image[] = [
 	// Backgrounds
-	image('backgrounds/background', 'background'),
+	image('backgrounds/overworld', 'overworld'),
+	image('backgrounds/shop', 'shop'),
 	image('backgrounds/trampoline', 'trampoline'),
 
 	// Characters
