@@ -64,7 +64,11 @@ export class OverworldState extends Phaser.GameObjects.Container {
 
 		this.scene.physics.add.collider(turtle.sprite, this.trampoline.sprite, () => {
 			turtle.sprite.setVelocityY(-800 + (Math.random()*100-50));
-		})
+		});
+
+		this.scene.physics.world.on('worldbounds', (body: any) => {
+			// world collision event
+        });
 
 		turtle.on("action", () => {
 			turtle.doABarrelRoll();
