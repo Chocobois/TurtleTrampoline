@@ -1,11 +1,12 @@
 import { GameScene } from "@/scenes/GameScene";
 import { Button } from "./Button";
+import constants from '@/constants.json';
 
 export class Trampoline extends Button {
 	public scene: GameScene;
 
 	// Sprites
-	private sprite: Phaser.Types.Physics.Arcade.SpriteWithStaticBody;
+	public sprite: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
 
 	constructor(scene: GameScene, x: number, y: number) {
 		super(scene, x, y);
@@ -13,7 +14,9 @@ export class Trampoline extends Button {
 		this.scene = scene;
 
 		/* Sprite */
-		this.sprite = this.scene.physics.add.staticSprite(0, 0, "trampoline");
+		this.sprite = this.scene.physics.add.sprite(0, 0, "trampoline");
+		this.sprite.setImmovable(true);
+
         //this.sprite.static;
 		this.sprite.setOrigin(0.5, 1.0);
 		this.add(this.sprite);
