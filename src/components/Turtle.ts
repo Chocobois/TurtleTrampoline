@@ -77,13 +77,20 @@ export class Turtle extends Button {
 
 	onDragStart(pointer: Phaser.Input.Pointer, dragX: number, dragY: number) {
 		this.isDragged = true;
-		this.dragOffset.set(dragX, dragY);
+		this.dragOffset.set(this.x, this.y);
 		this.sprite.setTexture("turtle_jumping");
 	}
 
 	onDrag(pointer: Phaser.Input.Pointer, dragX: number, dragY: number) {
 		super.onDrag(pointer, dragX, dragY);
-		this.setPosition(dragX + this.dragOffset.x, dragY + this.dragOffset.y);
+		const offsetDifference = new Phaser.Math.Vector2(
+			(this.originX - this.sprite.originX) * this.scaleX * this.sprite.width,
+			(this.originY - this.sprite.originY) * this.scaleY * this.sprite.height
+		)
+		this.setPosition(
+			dragX + this.dragOffset.x + offsetDifference.x,
+			dragY + this.dragOffset.y + offsetDifference.y
+		);
 	}
 
 	onDragEnd(
