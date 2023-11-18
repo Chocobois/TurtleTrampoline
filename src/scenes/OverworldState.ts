@@ -1,12 +1,13 @@
 import { GameScene, State } from "@/scenes/GameScene";
 import { Turtle } from "@/components/Turtle";
 import { Button } from "@/components/Button";
+import { Trampoline } from "@/components/Trampoline";
 
 export class OverworldState extends Phaser.GameObjects.Container {
 	public scene: GameScene;
 
 	private background: Phaser.GameObjects.Image;
-	private trampoline: Phaser.GameObjects.Image;
+	private trampoline: Trampoline;
 	private turtles: Turtle[];
 	private someButton: Button;
 
@@ -20,10 +21,10 @@ export class OverworldState extends Phaser.GameObjects.Container {
 		scene.fitToScreen(this.background);
 		this.add(this.background);
 
-		this.trampoline = scene.add.image(
-			0.3 * scene.W,
-			0.75 * scene.H,
-			"trampoline"
+		this.trampoline = new Trampoline(
+			scene, 
+			0.25 * scene.W, 
+			0.90 * scene.H
 		);
 		this.add(this.trampoline);
 

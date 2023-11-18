@@ -22,6 +22,10 @@ const config: Phaser.Types.Core.GameConfig = {
 			},
 		],
 	},
+	physics: {
+		default: 'arcade',
+		arcade: {}
+	}
 };
 
 const game = new Phaser.Game(config);

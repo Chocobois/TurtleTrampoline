@@ -1,5 +1,6 @@
 import { GameScene } from "@/scenes/GameScene";
 import { Button } from "./Button";
+import constants from '@/constants.json';
 
 const ACCELERATION = 150;
 const MAX_SPEED = 400;
@@ -15,7 +16,7 @@ export class Turtle extends Button {
 
 	// Sprites
 	private spriteSize: number;
-	private sprite: Phaser.GameObjects.Sprite;
+	private sprite: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
 	private tween: Phaser.Tweens.Tween;
 
 	// Controls
@@ -31,7 +32,9 @@ export class Turtle extends Button {
 
 		/* Sprite */
 		this.spriteSize = 200;
-		this.sprite = this.scene.add.sprite(0, 0, "turtle_waiting");
+		this.sprite = this.scene.physics.add.sprite(0, 0, "turtle_waiting");
+		this.sprite.setGravityY(constants.physics.gravity);
+		this.sprite.setCollideWorldBounds(true)
 		this.sprite.setOrigin(0.5, 1.0);
 		this.sprite.y += this.spriteSize / 2;
 		this.sprite.setScale(this.spriteSize / this.sprite.width);
@@ -75,6 +78,12 @@ export class Turtle extends Button {
 		this.setScale(1.0 + squish, 1.0 - squish);
 	}
 
+	onDown(pointer: Phaser.Input.Pointer, localX: number, localY: number, event: Phaser.Types.Input.EventData): void {
+		console.log("ondown")
+		this.sprite.setGravityY(0);
+		this.sprite.setVelocity(0,0);
+	}
+
 	onDragStart(pointer: Phaser.Input.Pointer, dragX: number, dragY: number) {
 		this.isDragged = true;
 		this.dragOffset.set(this.x, this.y);
@@ -100,6 +109,7 @@ export class Turtle extends Button {
 		dropped: boolean
 	) {
 		this.isDragged = false;
+		this.sprite.setGravityY(constants.physics.gravity)
 		this.sprite.setTexture("turtle_waiting");
 	}
 
