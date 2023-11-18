@@ -1,5 +1,9 @@
 {
     "physics": {
-        "gravity": 500
+        "gravity": 1000,
+        "collisionGroup": {
+            "TRAMPOLINE": 0,
+            "TURTLE": 1
+        }
     }
 }
