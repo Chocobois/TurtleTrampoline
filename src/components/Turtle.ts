@@ -34,7 +34,7 @@ export class Turtle extends Button {
 		this.spriteSize = 200;
 		this.sprite = this.scene.physics.add.sprite(0, 0, "turtle_waiting");
 		this.sprite.setGravityY(constants.physics.gravity);
-		this.sprite.setCollideWorldBounds(true)
+		this.sprite.setCollideWorldBounds(true, 1, 1, true);
 		this.sprite.setBounceY(0.4);
 		this.sprite.setOrigin(0.5, 1.0);
 		this.sprite.y += this.spriteSize / 2;
