@@ -3,9 +3,9 @@
 	"title": "Turtle Trampoline",
 	"description": "We make game, but faster!",
 	"itch": {
-		"upload": false,
-		"username": "username",
-		"game": "game-name"
+		"upload": true,
+		"username": "golen",
+		"game": "turtle-trampoline"
 	},
 	"neutralino": {
 		"allow": ["app.exit", "window.center"]
