@@ -49,7 +49,7 @@ export class GameScene extends BaseScene {
 		this.overworld.addDust(x,y);
 	}
 
-	addTextParticle(x: number,y: number, color: string, content: string, size: number)
+	addTextParticle(x: number, y: number, color: string, content: string, size: number)
 	{
 		this.textParticle(x, y, color, content, undefined, size);
 	}

@@ -199,7 +199,7 @@ export class Turtle extends Button {
 				this.physicsPosition.y = this.border.bottom - this.feetOffset;
 				if (this.lostBalance && !this.hasCrashed) {
 					this.hasCrashed = true;
-					this.scene.addDust(this.x+this.sprite.x, this.y+this.sprite.y-75);
+					this.scene.addDust(this.x, this.y-90);
 					this.emit("crashed");
 				}
 			}
@@ -297,7 +297,7 @@ export class Turtle extends Button {
 		let s = Math.round(this.multiplier*this.baseScore);
 		this.scene.addScore(s);
 		this.scene.sound.play("score", {volume: 1.0});
-		this.scene.addTextParticle(this.x+this.sprite.x, this.y+this.sprite.y-70, "green", `+ $` + `${s}`, 80);
+		this.scene.addTextParticle(this.x, this.y-70, "green", `+ $` + `${s}!`, 80);
 	}
 
 	/* Jumping */
