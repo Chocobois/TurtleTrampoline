@@ -39,6 +39,9 @@ export class Turtle extends Button {
 	//Score
 	private baseScore: number;
 	private multiplier: number;
+	private desiredBounces: number;
+	private totalBounces: number;
+	private bounceDisplay: Phaser.GameObjects.Graphics;
 
 	//Fade/leaving variables
 	private fadeTimer: number;
@@ -109,6 +112,10 @@ export class Turtle extends Button {
 		this.leaving =  false;
 		this.fadeTimer = 0;
 		this.deleteFlag = false;
+		this.desiredBounces = 5 + Math.round(Math.random() * 15);
+		this.totalBounces = 0;
+		this.bounceDisplay = scene.add.graphics();
+		this.add(this.bounceDisplay);
 
 		/* Input */
 		this.dragOffset = new Phaser.Math.Vector2();
@@ -139,6 +146,13 @@ export class Turtle extends Button {
 						this.bounceCount += 1;
 						//this.scene.addScore(1);
 						this.multiplier += 0.05;
+						if(this.totalBounces >= this.desiredBounces)
+						{
+							if(this.multiplier >= 0.5) {
+								this.multiplier -= 0.05;
+							}
+						}
+						this.totalBounces += 1;
 						this.scene.sound.play("t_rustle",{ volume: 0.5 });
 						this.emit("bounce");
 					}
@@ -177,7 +191,7 @@ export class Turtle extends Button {
 						this.physicsVelocity.x += walkingSpeed * Math.sign(distance);
 					}
 
-					if(this.multiplier > 1) {
+					if(this.totalBounces > 0) {
 						if(this.fadeTimer > 0 && this.leaving) {
 							this.fadeTimer -= delta;
 							if(this.fadeTimer <= 0)
@@ -199,6 +213,7 @@ export class Turtle extends Button {
 				this.physicsPosition.y = this.border.bottom - this.feetOffset;
 				if (this.lostBalance && !this.hasCrashed) {
 					this.hasCrashed = true;
+					this.scene.sound.play("fall", {volume: 0.25});
 					this.scene.addDust(this.x, this.y-90);
 					this.emit("crashed");
 				}
@@ -276,6 +291,8 @@ export class Turtle extends Button {
 			}
 		}
 
+		//UI stuff
+		this.drawBounceDisplay();
 		// Depth sorting
 		this.sprite.setPosition(this.x, this.y);
 		let depth = 100;
@@ -288,7 +305,43 @@ export class Turtle extends Button {
 		this.sprite.setDepth(depth);
 	}
 
+	drawBounceDisplay()
+	{
+		if(this.isOnTrampoline)
+		{
 
+			this.bounceDisplay.setVisible(true);
+			this.bounceDisplay.clear();
+			if(this.totalBounces > 0 && this.totalBounces < this.desiredBounces)
+			{
+				this.bounceDisplay.lineStyle(24, 0xFFFFFF, 0.75);
+				this.bounceDisplay.beginPath();
+				this.bounceDisplay.arc(0, 0, 175, Phaser.Math.DegToRad(0-90), Phaser.Math.DegToRad(360-(360*(this.totalBounces/this.desiredBounces))-90), true, 0);
+				this.bounceDisplay.strokePath();
+				this.bounceDisplay.closePath();
+				this.bounceDisplay.lineStyle(16, 0x4BFF55, 1.0);
+				this.bounceDisplay.beginPath();
+				this.bounceDisplay.arc(0, 0, 175, Phaser.Math.DegToRad(0-90), Phaser.Math.DegToRad(360-(360*(this.totalBounces/this.desiredBounces))-90), true, 0);
+				this.bounceDisplay.strokePath();
+				this.bounceDisplay.closePath();
+			} else if (this.totalBounces >= this.desiredBounces)
+			{
+				this.bounceDisplay.lineStyle(24, 0xFFFFFF, 0.75);
+				this.bounceDisplay.beginPath();
+				this.bounceDisplay.arc(0, 0, 175, Phaser.Math.DegToRad(0-90), Phaser.Math.DegToRad(360-90), true, 0.01);
+				this.bounceDisplay.strokePath();
+				this.bounceDisplay.closePath();
+				this.bounceDisplay.lineStyle(16, ((this.totalBounces == this.desiredBounces) ? 0x4BFF55 : 0xFF1212), 1.0);
+				this.bounceDisplay.beginPath();
+				this.bounceDisplay.arc(0, 0, 175, Phaser.Math.DegToRad(0-90), Phaser.Math.DegToRad(360-90), true, 0.01);
+				this.bounceDisplay.strokePath();
+				this.bounceDisplay.closePath();
+			}
+		} else {
+			this.bounceDisplay.setVisible(false);
+			this.bounceDisplay.clear();
+		}
+	}
 	turtleLeave(){
 		this.leaving = true;
 		this.disableInteractive();
