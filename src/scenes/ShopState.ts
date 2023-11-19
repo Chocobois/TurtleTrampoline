@@ -1,6 +1,7 @@
 import { GameScene, State } from "@/scenes/GameScene";
 import { Button } from "@/components/Button";
 import { Shopper } from "@/components/Shopper";
+import { ShopOwner } from "@/components/ShopOwner";
 
 type Item = {
 	title: string[];
@@ -37,6 +38,7 @@ export class ShopState extends Phaser.GameObjects.Container {
 
 	private itemsForSale: Item[];
 	private shopper: Shopper;
+	private owner: ShopOwner;
 
 	constructor(scene: GameScene) {
 		super(scene, 0, 0);
@@ -70,6 +72,9 @@ export class ShopState extends Phaser.GameObjects.Container {
 
 		this.shopper = new Shopper(scene, 0.5, 0.5);
 		this.add(this.shopper);
+
+		this.owner = new ShopOwner(scene, 0.5, 0.5);
+		this.add(this.owner);
 	}
 
 	populateShop() {
@@ -79,5 +84,7 @@ export class ShopState extends Phaser.GameObjects.Container {
 
 	update(time: number, delta: number) {
 		if (!this.visible) return;
+		this.shopper.update(time, delta);
+		this.owner.update(time, delta);
 	}
 }

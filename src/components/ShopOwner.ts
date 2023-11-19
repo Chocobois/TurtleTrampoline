@@ -2,7 +2,7 @@ import { GameScene } from "@/scenes/GameScene";
 import { Button } from "./Button";
 import { Trampoline } from "./Trampoline";
 
-export class Shopper extends Button {
+export class ShopOwner extends Button {
 	public scene: GameScene;
 
 	// Sprites
@@ -16,21 +16,22 @@ export class Shopper extends Button {
 		this.scene = scene;
 
 		/* Sprite */
-		this.spriteSize = 1;
-		this.sprite = this.scene.add.sprite(-60, this.scene.H, "shopper");
-        this.sprite.setOrigin(0, 1);
+		this.spriteSize = 150;
+		this.sprite = this.scene.add.sprite(this.scene.W*0.85, this.scene.H*0.95, "raccoon");
+        this.sprite.setOrigin(0.5, 1);
 
 		this.sprite.setScale(this.spriteSize / this.sprite.width);
 		this.add(this.sprite);
 
+		/* Input */
 		this.bindInteractive(this.sprite, true);
 	}
 
 	update(time: number, delta: number) {
-        const squish = Math.sin((2.5 * (time+0.5)) / 1000);
+        const squish = 0.02 * Math.sin((6 * time) / 1000);
 		this.sprite.setScale(
-            (1.0 + 0.005 * squish) + this.spriteSize / this.sprite.width,
-            (1.0 - 0.01 * squish) + this.spriteSize / this.sprite.height
+            (1.0 + squish) + this.spriteSize / this.sprite.width,
+            (1.0 - squish) + this.spriteSize / this.sprite.height
         );
 	}
 
