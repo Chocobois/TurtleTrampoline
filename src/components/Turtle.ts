@@ -65,7 +65,7 @@ export class Turtle extends Button {
 		this.spriteSize = 200;
 		this.sprite = this.scene.add.sprite(0, 0, "turtle_waiting");
 		this.sprite.setScale(this.spriteSize / this.sprite.width);
-		// this.add(this.sprite);
+		this.add(this.sprite);
 
 		/* Controls */
 		this.physicsPosition = new Phaser.Math.Vector2(x, y);
@@ -108,8 +108,6 @@ export class Turtle extends Button {
 		if (!this.hold) {
 			// Trampoline
 			if (this.isOnTrampoline) {
-				this.sprite.setDepth(100 * Math.random());
-
 				// Bounce on trampoline rug
 				if (
 					this.physicsPosition.y + this.feetOffset >=
@@ -244,12 +242,6 @@ export class Turtle extends Button {
 				this.sprite.setTexture("turtle_jumping");
 			}
 		}
-
-		// Depth sorting
-		this.sprite.setPosition(this.x, this.y);
-		let depth = this.jumpTarget.y + this.walkTarget.y;
-		if (this.hold) depth += 100;
-		this.sprite.setDepth(depth);
 	}
 
 	/* Jumping */

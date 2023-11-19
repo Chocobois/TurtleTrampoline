@@ -73,7 +73,6 @@ export class OverworldState extends Phaser.GameObjects.Container {
 		let y = this.scene.H * (0.6 + 0.2 * Math.random());
 		let turtle = new Turtle(this.scene, x, y, this.trampoline, this.ground);
 		this.add(turtle);
-		this.add(turtle.sprite);
 		this.turtles.push(turtle);
 
 		turtle.on("bounce", () => {
