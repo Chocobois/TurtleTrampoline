@@ -30,7 +30,7 @@ export class GameScene extends BaseScene {
 		this.shop = new ShopState(this);
 		this.ui = new UI(this);
 
-		this.setState(State.Overworld);
+		this.setState(this.state);
 	}
 
 	update(time: number, delta: number) {
@@ -41,6 +41,7 @@ export class GameScene extends BaseScene {
 
 	setState(state: State) {
 		this.state = state;
+		this.events.emit(`state_${state}`);
 		this.overworld.setVisible(state == State.Overworld);
 		this.shop.setVisible(state == State.Shop);
 	}

@@ -20,6 +20,8 @@ const images: Image[] = [
 	image('characters/turtle_waiting', 'turtle_walking_angry'),
 	image('characters/turtle_walking1', 'turtle_walking_angry1'),
 	image('characters/turtle_walking2', 'turtle_walking_angry2'), // For walking animation, do this: turtle_walking - turtle_walking1 - turtle_walking - turtle_walking2 -loop
+	image('characters/shopper', 'shopper'),
+	image('characters/raccoon', 'raccoon'),
 
 	// Items
 	image('items/coin', 'coin'),

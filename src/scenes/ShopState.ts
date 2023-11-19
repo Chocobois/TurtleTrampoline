@@ -1,11 +1,44 @@
 import { GameScene, State } from "@/scenes/GameScene";
 import { Button } from "@/components/Button";
+import { Shopper } from "@/components/Shopper";
+import { ShopOwner } from "@/components/ShopOwner";
+
+type Item = {
+	title: string[];
+	description: string[];
+	image: string[];
+	prices: number[],
+	onBuy: (() => null | null)[]
+}
+
+const shopItems: Item[] = [
+	/*
+	{
+		name: 'Duct Tape',
+		description: 'Will fix your trampoline 100% of the time!',
+		image: 'tape',
+		prices: [500],
+		onBuy: []
+	},
+	*/
+	{
+		title: ['Spring'],
+		description: ['Enhances the bounce'],
+		image: ['spring'],
+		prices: [100],
+		onBuy: []
+	}
+];
 
 export class ShopState extends Phaser.GameObjects.Container {
 	public scene: GameScene;
 
 	private background: Phaser.GameObjects.Image;
 	private someButton: Button;
+
+	private itemsForSale: Item[];
+	private shopper: Shopper;
+	private owner: ShopOwner;
 
 	constructor(scene: GameScene) {
 		super(scene, 0, 0);
@@ -31,9 +64,27 @@ export class ShopState extends Phaser.GameObjects.Container {
 		this.someButton.on("click", () => {
 			this.scene.setState(State.Overworld);
 		});
+
+		this.itemsForSale = [];
+		this.scene.events.addListener('state_Shop', () => {
+			this.populateShop();
+		});
+
+		this.shopper = new Shopper(scene, 0.5, 0.5);
+		this.add(this.shopper);
+
+		this.owner = new ShopOwner(scene, 0.5, 0.5);
+		this.add(this.owner);
+	}
+
+	populateShop() {
+		this.itemsForSale = shopItems;
+
 	}
 
 	update(time: number, delta: number) {
 		if (!this.visible) return;
+		this.shopper.update(time, delta);
+		this.owner.update(time, delta);
 	}
 }
