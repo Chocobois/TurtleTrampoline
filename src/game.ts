@@ -22,12 +22,12 @@ const config: Phaser.Types.Core.GameConfig = {
 			},
 		],
 	},
-	physics: {
-		default: 'arcade',
-		arcade: {
-			debug: import.meta.env.DEV
-		}
-	}
+	// physics: {
+	// 	default: 'arcade',
+	// 	arcade: {
+	// 		debug: import.meta.env.DEV
+	// 	}
+	// }
 };
 
 const game = new Phaser.Game(config);

@@ -33,5 +33,7 @@ export class ShopState extends Phaser.GameObjects.Container {
 		});
 	}
 
-	update(time: number, delta: number) {}
+	update(time: number, delta: number) {
+		if (!this.visible) return;
+	}
 }
