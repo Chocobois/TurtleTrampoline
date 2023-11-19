@@ -43,7 +43,7 @@ export class Turtle extends Button {
 	private trampoline: Trampoline;
 	private feetOffset: number;
 	private lostBalance: boolean;
-	private hasCrashed: boolean;
+	public hasCrashed: boolean;
 	private jumpTarget: Phaser.Geom.Point;
 	private jumpTargetTween: Phaser.Tweens.Tween;
 	private maxJumpSpeed: number;

@@ -10,7 +10,7 @@ export class OverworldState extends Phaser.GameObjects.Container {
 	private background: Phaser.GameObjects.Image;
 	private owner: ShopOwner;
 	private trampoline: Trampoline;
-	private turtles: Turtle[];
+	public turtles: Turtle[];
 	private someButton: Button;
 
 	private ground: Phaser.Geom.Rectangle;

@@ -50,6 +50,13 @@ const spritesheets: SpriteSheet[] = [
 
 /* Audios */
 const audios: Audio[] = [
+	music("tj_drum", "m_tj_drum"),
+	music("tj_base", "m_tj_base"),
+	music("tj_jump", "m_tj_jump"),
+	music("tj_idle", "m_tj_idle"),
+	music("tj_full", "m_tj_full"),
+	music("tj_shop", "m_tj_shop"),
+	music("transition", "m_transition"),
 	music("title", "m_main_menu"),
 	music("first", "m_first"),
 	sound("tree/rustle", "t_rustle", 0.5),
