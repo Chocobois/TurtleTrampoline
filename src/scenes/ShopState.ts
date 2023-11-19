@@ -30,6 +30,17 @@ const shopItems: Item[] = [
 	}
 ];
 
+import Vector2 = Phaser.Math.Vector2;
+
+const itemPositions: Vector2[] = [
+	new Vector2( 0, 0 ),
+	new Vector2( 1, 0 ),
+	new Vector2( 2, 0 ),
+	new Vector2( 3, 0 ),
+	new Vector2( 0, 2 ),
+];
+
+
 export class ShopState extends Phaser.GameObjects.Container {
 	public scene: GameScene;
 
@@ -79,7 +90,14 @@ export class ShopState extends Phaser.GameObjects.Container {
 
 	populateShop() {
 		this.itemsForSale = shopItems;
+		const Wstart = this.scene.W * 0.5;
+		const Hstart = this.scene.H * 0.375;
+		const Wdist = this.scene.W * 0.13;
+		const Hdist = this.scene.H * 0.15;
 
+		const items = itemPositions.map((pos, i) =>
+			this.scene.add.image(Wstart + pos.x * Wdist, Hstart + pos.y * Hdist, 'screw').setScale(1.1)
+		);
 	}
 
 	update(time: number, delta: number) {
