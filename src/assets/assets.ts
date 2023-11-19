@@ -34,6 +34,7 @@ const images: Image[] = [
 
 	// UI
 	image("ui/hud", "hud"),
+	image("ui/shop_buy_button", "buy_button"),
 
 	// Titlescreen
 	image("titlescreen/sky", "title_sky"),
