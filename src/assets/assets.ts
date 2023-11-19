@@ -9,7 +9,6 @@ const images: Image[] = [
 	image('backgrounds/trampoline', 'trampoline'),
 
 	// Characters
-	image('characters/player', 'player'),
 	image('characters/turtle_jumping', 'turtle_jumping'),
 	image('characters/turtle_scared', 'turtle_scared'),
 	image('characters/turtle_stuck', 'turtle_stuck'),
