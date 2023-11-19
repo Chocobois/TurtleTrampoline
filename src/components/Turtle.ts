@@ -346,7 +346,7 @@ export class Turtle extends Button {
 		this.lostBalance = false;
 		this.hasCrashed = false;
 		this.bounceCount = 0;
-		this.onDrag(pointer, this.x, this.y);
+		this.onDrag(pointer, 0, 0);
 	}
 
 	onDrag(pointer: Phaser.Input.Pointer, dragX: number, dragY: number) {
