@@ -21,7 +21,7 @@ export class OverworldState extends Phaser.GameObjects.Container {
 		scene.fitToScreen(this.background);
 		this.add(this.background);
 
-		this.trampoline = new Trampoline(scene, 0.25 * scene.W, 0.9 * scene.H);
+		this.trampoline = new Trampoline(scene, 0.25 * scene.W, 0.85 * scene.H);
 		this.add(this.trampoline);
 
 		this.turtles = [];

@@ -29,7 +29,7 @@ export class Turtle extends Button {
 
 	// Jumping
 	private trampolineZone?: Phaser.Geom.Rectangle;
-	public feetOffset: number;
+	private isStuck: boolean;
 
 	constructor(scene: GameScene, x: number, y: number) {
 		super(scene, x, y);
@@ -50,9 +50,9 @@ export class Turtle extends Button {
 			left: 100,
 			right: scene.W - 100,
 			top: 0,
-			bottom: scene.H - 250,
+			bottom: scene.H - 200,
 		};
-		this.feetOffset = 0.4 * this.sprite.displayHeight;
+		this.isStuck = false;
 
 		/* Input */
 		this.dragOffset = new Phaser.Math.Vector2();
@@ -96,6 +96,10 @@ export class Turtle extends Button {
 			else {
 				this.physicsVelocity.x = 0.97 * this.physicsVelocity.x;
 				this.physicsVelocity.y += 1;
+
+				if (this.physicsVelocity.y > 25) {
+					this.isStuck = true;
+				}
 			}
 
 			// Apply velocity
@@ -121,13 +125,24 @@ export class Turtle extends Button {
 		const squish = 0.02 * Math.sin((6 * time) / 1000);
 		this.setScale(1.0 + squish, 1.0 - squish);
 
-		// let dangleAngle = 10 * Math.sin((5 * time) / 1000);
 		this.sprite.angle = this.dragVelocity.x;
 
-		if (this.trampolineZone || !this.isGrounded) {
+		if (this.hold || this.trampolineZone) {
 			this.sprite.setTexture("turtle_jumping");
+		} else if (this.isGrounded) {
+			if (this.isStuck) {
+				this.sprite.setTexture("turtle_stuck");
+				this.setSpriteOrigin(0.5, 0.8);
+				this.sprite.angle = 10 * Math.sin((7 * time) / 1000);
+			} else {
+				this.sprite.setTexture("turtle_waiting");
+			}
 		} else {
-			this.sprite.setTexture("turtle_waiting");
+			if (this.isStuck) {
+				this.sprite.setTexture("turtle_scared");
+			} else {
+				this.sprite.setTexture("turtle_jumping");
+			}
 		}
 	}
 
@@ -152,8 +167,22 @@ export class Turtle extends Button {
 		}
 	}
 
+	setSpriteOrigin(ox: number, oy: number) {
+		this.sprite.x += (ox - this.sprite.originX) * this.sprite.displayWidth;
+		this.sprite.y += (oy - this.sprite.originY) * this.sprite.displayHeight;
+		this.sprite.setOrigin(ox, oy);
+	}
+
 	get isGrounded() {
 		return this.physicsPosition.y >= this.border.bottom - this.feetOffset;
+	}
+
+	get feetOffset() {
+		if (!this.isStuck) {
+			return 0.4 * this.sprite.displayHeight;
+		} else {
+			return 0.0 * this.sprite.displayHeight;
+		}
 	}
 
 	/* Input */
@@ -162,8 +191,10 @@ export class Turtle extends Button {
 		this.dragOffset.set(dragX, dragY);
 		this.physicsPosition.set(dragX, dragY);
 
-		this.sprite.setOrigin(0.5, 0.4);
+		this.setSpriteOrigin(0.5, 0.3);
 		this.sprite.setTexture("turtle_jumping");
+
+		this.isStuck = false;
 	}
 
 	onDrag(pointer: Phaser.Input.Pointer, dragX: number, dragY: number) {
@@ -174,7 +205,7 @@ export class Turtle extends Button {
 	}
 
 	onDragEnd(pointer: Phaser.Input.Pointer, dragX: number, dragY: number) {
-		this.sprite.setOrigin(0.5);
+		this.setSpriteOrigin(0.5, 0.5);
 		// this.y += this.sprite.height / 2;
 		this.sprite.setTexture("turtle_waiting");
 
