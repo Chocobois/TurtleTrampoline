@@ -19,8 +19,8 @@ export class Turtle extends Button {
 	private spriteSize: number;
 	public sprite: Phaser.GameObjects.Sprite;
 	private tween: Phaser.Tweens.Tween;
-	private debug: Phaser.GameObjects.Ellipse;
-	private debugLand: Phaser.GameObjects.Ellipse;
+	// private debug: Phaser.GameObjects.Ellipse;
+	// private debugLand: Phaser.GameObjects.Ellipse;
 
 	// Controls
 	public physicsPosition: Phaser.Math.Vector2;
@@ -56,10 +56,10 @@ export class Turtle extends Button {
 		scene.add.existing(this);
 		this.scene = scene;
 
-		this.debugLand = this.scene.add
-			.ellipse(0, 0, 30, 30, 0xff0000)
-			.setDepth(1000);
-		this.debug = this.scene.add.ellipse(0, 0, 20, 20, 0x007700).setDepth(1000);
+		// this.debugLand = this.scene.add
+		// 	.ellipse(0, 0, 30, 30, 0xff0000)
+		// 	.setDepth(1000);
+		// this.debug = this.scene.add.ellipse(0, 0, 20, 20, 0x007700).setDepth(1000);
 
 		/* Sprite */
 		this.spriteSize = 200;
@@ -192,8 +192,8 @@ export class Turtle extends Button {
 		// Movement
 		this.x += 0.5 * (this.physicsPosition.x - this.x);
 		this.y += 0.5 * (this.physicsPosition.y - this.y);
-		this.debug.setPosition(this.x, this.physicsPosition.y + this.feetOffset);
-		this.debugLand.setPosition(this.walkTarget.x, this.walkTarget.y);
+		// this.debug.setPosition(this.x, this.physicsPosition.y + this.feetOffset);
+		// this.debugLand.setPosition(this.walkTarget.x, this.walkTarget.y);
 
 		if (this.hold) {
 			this.dragVelocity.set(
