@@ -14,6 +14,7 @@ const FADETIME = 2000;
 const SAVETIME = 3000;
 const ASSISTTIME = 1000;
 const DEFAULT_BOUNCE = 0.4;
+const MAX_DESIRED_BOUNCE = 9;
 
 //states
 const IDLE = 0;
@@ -46,8 +47,9 @@ export class Turtle extends Button {
 	private ripTimer: number;
 	private assistTimer: number;
 	private beingSaved: boolean;
+	private desiredBounces: number;
 	public flagDelete: boolean;
-
+	
 	// Sprites
 	private spriteSize: number;
 	public sprite: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
@@ -56,6 +58,8 @@ export class Turtle extends Button {
 	private saveGUI: Phaser.GameObjects.Graphics;
 	private accessories: Phaser.GameObjects.Container;
 	private aim: Phaser.GameObjects.Line;
+
+	private bounceAmount: Phaser.GameObjects.Text;
 
 	// Controls
 	public velocity: Phaser.Math.Vector2;
@@ -83,9 +87,20 @@ export class Turtle extends Button {
 		this.saveGUI = scene.add.graphics();
 		this.aim = scene.add.line();
 		this.aim.strokeColor = 0xff0000;
+		this.desiredBounces = 1+ Math.round(Math.random()*MAX_DESIRED_BOUNCE);
+		this.bounceAmount = scene.addText({
+			x: this.sprite.x,
+			y: this.sprite.y+150,
+			size: 50,
+			color: "#000",
+			text: "",
+		});
 		this.accessories.add(this.t);
 		this.accessories.add(this.aim);
 		this.accessories.add(this.saveGUI);
+		this.accessories.add(this.bounceAmount);
+		this.bounceAmount.setStroke("#FFF", 4);
+		this.bounceAmount.setVisible(true);
 		this.add(this.accessories);
 		this.add(this.sprite);
 
@@ -119,6 +134,15 @@ export class Turtle extends Button {
 		this.assistTimer = 0;
 		this.flagDelete = false;
 		this.beingSaved = false;
+		this.scene.physics.world.on('collide', (gameObject1: Phaser.GameObjects.GameObject, gameObject2: Phaser.GameObjects.GameObject, body1: Phaser.Physics.Arcade.Body, body2: Phaser.Physics.Arcade.Body) =>
+			{
+				if(body1 == this.sprite.body || body2 == this.sprite.body)
+				{
+					this.scene.sound.play("t_rustle");
+					this.desiredBounces--;
+				}
+			}
+		);
 		this.scene.physics.world.on('worldbounds', (body: Phaser.Physics.Arcade.Body, up: boolean, down: boolean, left: boolean, right: boolean) =>
 			{
 				if(down)
@@ -133,7 +157,7 @@ export class Turtle extends Button {
 					this.sprite.body.velocity.y *= (0.9+(Math.random()*0.1));
 				}
 			}
-		)
+		);
 
 
 	}
@@ -142,6 +166,15 @@ export class Turtle extends Button {
 		// Animation (Change to this.sprite.setScale if needed)
 		const squish = 0.02 * Math.sin((6 * time) / 1000);
 		this.setScale(1.0 + squish, 1.0 - squish);
+
+		//how much time left to move turtles
+		this.updateTimers(delta);
+		this.updateGraphics(delta);
+
+	}
+
+	updateTimers(delta: number)
+	{
 		if(this.timer > 0)
 		{
 			this.timer -= delta;
@@ -180,8 +213,24 @@ export class Turtle extends Button {
 				this.flagDelete;
 			}
 		}
-		//how much time left to move turtles
+	}
+	updateGraphics(delta: number)
+	{
+		if(this.desiredBounces > 0)
+		{
+			this.bounceAmount.setColor("blue");
+			this.bounceAmount.setText(this.desiredBounces.toString());
+		} else if (this.desiredBounces == 0)
+		{
+			this.bounceAmount.setColor("green");
+			this.bounceAmount.setText("Perfect!");
+		} else {
+			this.bounceAmount.setColor("red");
+			this.bounceAmount.setText("!!!");
+		}
 
+		this.bounceAmount.setX(this.sprite.x);
+		this.bounceAmount.setY(this.sprite.y-150);
 		switch(this.turtleState) {
 			case BOUNCED: {
 				if(this.timer > 0)
@@ -200,6 +249,7 @@ export class Turtle extends Button {
 			} case FALLEN : {
 				this.t.clear();
 				this.saveGUI.clear();
+				this.bounceAmount.setVisible(false);
 				if(!this.beingSaved){
 					this.saveGUI.lineStyle(16, 0xFF2323);
 				} else {
