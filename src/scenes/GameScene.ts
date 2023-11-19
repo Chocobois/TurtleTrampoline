@@ -36,6 +36,7 @@ export class GameScene extends BaseScene {
 	update(time: number, delta: number) {
 		this.overworld.update(time, delta);
 		this.shop.update(time, delta);
+		this.ui.update(time, delta);
 	}
 
 	setState(state: State) {

@@ -21,11 +21,7 @@ export class OverworldState extends Phaser.GameObjects.Container {
 		scene.fitToScreen(this.background);
 		this.add(this.background);
 
-		this.trampoline = new Trampoline(
-			scene, 
-			0.25 * scene.W, 
-			0.90 * scene.H
-		);
+		this.trampoline = new Trampoline(scene, 0.25 * scene.W, 0.9 * scene.H);
 		this.add(this.trampoline);
 
 		this.turtles = [];
@@ -37,7 +33,6 @@ export class OverworldState extends Phaser.GameObjects.Container {
 		this.add(this.someButton);
 		let buttonText = scene.addText({
 			size: 50,
-			weight: 900,
 			color: "black",
 			text: "Shop",
 		});
@@ -50,6 +45,9 @@ export class OverworldState extends Phaser.GameObjects.Container {
 	}
 
 	update(time: number, delta: number) {
+		if (!this.visible) return;
+
+		this.trampoline.update(time, delta);
 		this.turtles.forEach((turtle) => {
 			turtle.update(time, delta);
 		});
@@ -62,16 +60,14 @@ export class OverworldState extends Phaser.GameObjects.Container {
 		this.add(turtle);
 		this.turtles.push(turtle);
 
-		this.scene.physics.add.collider(turtle.sprite, this.trampoline.sprite, () => {
-			turtle.sprite.setVelocityY(-800 + (Math.random()*100-50));
-		});
-
-		this.scene.physics.world.on('worldbounds', (body: any) => {
-			// world collision event
-        });
-
-		turtle.on("action", () => {
-			turtle.doABarrelRoll();
+		turtle.on("click", () => {
+			if (
+				this.trampoline.zone.contains(turtle.x, turtle.y + turtle.feetOffset)
+			) {
+				turtle.setTrampolineZone(this.trampoline.zone);
+			} else {
+				turtle.setTrampolineZone(undefined);
+			}
 		});
 	}
 }
