@@ -10,15 +10,15 @@ type Item = {
 	title: string[];
 	description: string[];
 	image: string[];
-	prices: number[],
-	onBuy: (() => null | null)[]
-}
+	prices: number[];
+	onBuy: (() => null | null)[];
+};
 
 const shopItems: Item[] = [
 	{
-		title: ['Spring'],
-		description: ['Enhances the bounce'],
-		image: ['spring'],
+		title: ["Spring"],
+		description: ["Enhances the bounce"],
+		image: ["spring"],
 		prices: [100],
 		onBuy: []
 	},
@@ -46,13 +46,12 @@ const shopItems: Item[] = [
 ];
 
 const itemPositions: Vector2[] = [
-	new Vector2( 0, 0 ),
-	new Vector2( 1, 0 ),
-	new Vector2( 2, 0 ),
-	new Vector2( 3, 0 ),
-	new Vector2( 0, 2 ),
+	new Vector2(0, 0),
+	new Vector2(1, 0),
+	new Vector2(2, 0),
+	new Vector2(3, 0),
+	new Vector2(0, 2),
 ];
-
 
 export class ShopState extends Phaser.GameObjects.Container {
 	public scene: GameScene;
@@ -62,7 +61,6 @@ export class ShopState extends Phaser.GameObjects.Container {
 
 	private itemsForSale: Item[];
 	private shopper: Shopper;
-	private owner: ShopOwner;
 
 	constructor(scene: GameScene) {
 		super(scene, 0, 0);
@@ -90,15 +88,12 @@ export class ShopState extends Phaser.GameObjects.Container {
 		});
 
 		this.itemsForSale = [];
-		this.scene.events.addListener('state_Shop', () => {
+		this.scene.events.addListener("state_Shop", () => {
 			this.populateShop();
 		});
 
 		this.shopper = new Shopper(scene, 0.5, 0.5);
 		this.add(this.shopper);
-
-		this.owner = new ShopOwner(scene, 0.5, 0.5);
-		this.add(this.owner);
 	}
 
 	populateShop() {
@@ -109,7 +104,6 @@ export class ShopState extends Phaser.GameObjects.Container {
 		const Hdist = this.scene.H * 0.15;
 
 		this.itemsForSale = shopItems;
-
 
 		const items = this.itemsForSale.map((item, i) => 
 			new ShopItem(this.scene, Wstart + itemPositions[i].x * Wdist, Hstart + itemPositions[i].y * Hdist, item.image[0])
@@ -125,6 +119,5 @@ export class ShopState extends Phaser.GameObjects.Container {
 	update(time: number, delta: number) {
 		if (!this.visible) return;
 		this.shopper.update(time, delta);
-		this.owner.update(time, delta);
 	}
 }

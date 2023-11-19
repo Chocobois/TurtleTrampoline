@@ -16,10 +16,9 @@ export class ShopOwner extends Button {
 		this.scene = scene;
 
 		/* Sprite */
-		this.spriteSize = 150;
-		this.sprite = this.scene.add.sprite(this.scene.W*0.85, this.scene.H*0.95, "raccoon");
-        this.sprite.setOrigin(0.5, 1);
-
+		this.spriteSize = 200;
+		this.sprite = this.scene.add.sprite(0, 0, "raccoon");
+		this.sprite.setOrigin(0.5, 0.9);
 		this.sprite.setScale(this.spriteSize / this.sprite.width);
 		this.add(this.sprite);
 
@@ -28,18 +27,12 @@ export class ShopOwner extends Button {
 	}
 
 	update(time: number, delta: number) {
-        const squish = 0.02 * Math.sin((6 * time) / 1000);
-		this.sprite.setScale(
-            (1.0 + squish) + this.spriteSize / this.sprite.width,
-            (1.0 - squish) + this.spriteSize / this.sprite.height
-        );
+		const holdX = 1.0 + 0.15 * this.holdSmooth;
+		const holdY = 1.0 - 0.2 * this.holdSmooth;
+		const squish = 0.03;
+		this.setScale(
+			(1.0 + squish * Math.sin(-time / 200)) * holdX,
+			(1.0 + squish * Math.sin(time / 200)) * holdY
+		);
 	}
-
-
-	setSpriteOrigin(ox: number, oy: number) {
-		this.sprite.x += (ox - this.sprite.originX) * this.sprite.displayWidth;
-		this.sprite.y += (oy - this.sprite.originY) * this.sprite.displayHeight;
-		this.sprite.setOrigin(ox, oy);
-	}
-
 }
