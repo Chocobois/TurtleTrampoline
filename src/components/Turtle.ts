@@ -42,6 +42,7 @@ export class Turtle extends Button {
 	private hasCrashed: boolean;
 	private jumpTarget: Phaser.Geom.Point;
 	private jumpTargetTween: Phaser.Tweens.Tween;
+	private maxJumpSpeed: number;
 	public bounceCount: number;
 
 	constructor(
@@ -91,6 +92,7 @@ export class Turtle extends Button {
 		this.hasCrashed = false;
 		this.jumpTarget = new Phaser.Geom.Point();
 		this.newJumpTarget();
+		this.maxJumpSpeed = Phaser.Math.RND.between(27, 31);
 		this.bounceCount = 0;
 
 		/* Input */
@@ -113,7 +115,7 @@ export class Turtle extends Button {
 					this.physicsPosition.y + this.feetOffset >=
 					this.trampoline.zone.bottom
 				) {
-					let maxSpeed = 30;
+					let maxSpeed = this.maxJumpSpeed;
 					let landSpeed = Math.max(this.physicsVelocity.y, 2);
 					let jumpSpeed =
 						Phaser.Math.Easing.Sine.Out(landSpeed / maxSpeed) * maxSpeed;
