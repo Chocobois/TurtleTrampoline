@@ -98,6 +98,7 @@ export class ShopState extends Phaser.GameObjects.Container {
 		const items = itemPositions.map((pos, i) =>
 			this.scene.add.image(Wstart + pos.x * Wdist, Hstart + pos.y * Hdist, 'screw').setScale(1.1)
 		);
+		items.forEach(this.add.bind(this));
 	}
 
 	update(time: number, delta: number) {
