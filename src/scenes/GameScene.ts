@@ -41,6 +41,7 @@ export class GameScene extends BaseScene {
 
 	setState(state: State) {
 		this.state = state;
+		this.events.emit(`state_${state}`);
 		this.overworld.setVisible(state == State.Overworld);
 		this.shop.setVisible(state == State.Shop);
 	}
