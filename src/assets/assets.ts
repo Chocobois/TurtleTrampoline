@@ -40,7 +40,7 @@ const audios: Audio[] = [
 ];
 
 /* Fonts */
-await loadFont('Sketch', 'Game Font');
+await loadFont('NerkoOne-Regular', 'Game Font');
 
 export {
 	images,

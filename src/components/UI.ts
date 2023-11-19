@@ -19,6 +19,7 @@ export class UI extends Phaser.GameObjects.Container {
 
 		this.background = this.scene.add.image(0, 0, "hud");
 		this.background.setScale(panelHeight / this.background.height);
+		this.background.setAlpha(0.2);
 		this.panel.add(this.background);
 
 		this.text = this.scene.addText({
@@ -28,7 +29,7 @@ export class UI extends Phaser.GameObjects.Container {
 			color: "#FFFFFF",
 			text: "Score: 123",
 		});
-		this.text.setStroke("black", 4);
+		this.text.setStroke("black", 8);
 		this.text.setOrigin(0, 0.5);
 		this.panel.add(this.text);
 
