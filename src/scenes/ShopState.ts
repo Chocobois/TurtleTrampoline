@@ -2,6 +2,9 @@ import { GameScene, State } from "@/scenes/GameScene";
 import { Button } from "@/components/Button";
 import { Shopper } from "@/components/Shopper";
 import { ShopOwner } from "@/components/ShopOwner";
+import { ShopItem } from "@/components/ShopItem";
+
+import Vector2 = Phaser.Math.Vector2;
 
 type Item = {
 	title: string[];
@@ -12,25 +15,35 @@ type Item = {
 }
 
 const shopItems: Item[] = [
-	/*
-	{
-		name: 'Duct Tape',
-		description: 'Will fix your trampoline 100% of the time!',
-		image: 'tape',
-		prices: [500],
-		onBuy: []
-	},
-	*/
 	{
 		title: ['Spring'],
 		description: ['Enhances the bounce'],
 		image: ['spring'],
 		prices: [100],
 		onBuy: []
-	}
+	},
+	{
+		title: ['Nail'],
+		description: ['Got to keep the turt down'],
+		image: ['nail'],
+		prices: [100],
+		onBuy: []
+	},
+	{
+		title: ['Screw'],
+		description: ['Tighten those springs'],
+		image: ['screw'],
+		prices: [100],
+		onBuy: []
+	},
+	{
+		title: ['Spring'],
+		description: ['Enhances the bounce'],
+		image: ['spring'],
+		prices: [100],
+		onBuy: []
+	},
 ];
-
-import Vector2 = Phaser.Math.Vector2;
 
 const itemPositions: Vector2[] = [
 	new Vector2( 0, 0 ),
@@ -95,10 +108,18 @@ export class ShopState extends Phaser.GameObjects.Container {
 		const Wdist = this.scene.W * 0.13;
 		const Hdist = this.scene.H * 0.15;
 
-		const items = itemPositions.map((pos, i) =>
-			this.scene.add.image(Wstart + pos.x * Wdist, Hstart + pos.y * Hdist, 'screw').setScale(1.1)
+		this.itemsForSale = shopItems;
+
+
+		const items = this.itemsForSale.map((item, i) => 
+			new ShopItem(this.scene, Wstart + itemPositions[i].x * Wdist, Hstart + itemPositions[i].y * Hdist, item.image[0])
 		);
-		items.forEach(this.add.bind(this));
+
+		items.forEach((elem) => {
+			elem.on('click', () => {
+				console.log("click")
+			});
+		});
 	}
 
 	update(time: number, delta: number) {
