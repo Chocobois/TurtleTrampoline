@@ -43,9 +43,7 @@ const images: Image[] = [
 ];
 
 /* Spritesheets */
-const spritesheets: SpriteSheet[] = [
-
-];
+const spritesheets: SpriteSheet[] = [];
 
 /* Audios */
 const audios: Audio[] = [
