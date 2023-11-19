@@ -1,4 +1,5 @@
 import { GameScene, State } from "@/scenes/GameScene";
+import { ShopOwner } from "@/components/ShopOwner";
 import { Turtle } from "@/components/Turtle";
 import { Button } from "@/components/Button";
 import { Trampoline } from "@/components/Trampoline";
@@ -7,6 +8,7 @@ export class OverworldState extends Phaser.GameObjects.Container {
 	public scene: GameScene;
 
 	private background: Phaser.GameObjects.Image;
+	private owner: ShopOwner;
 	private trampoline: Trampoline;
 	private turtles: Turtle[];
 	private someButton: Button;
@@ -29,6 +31,9 @@ export class OverworldState extends Phaser.GameObjects.Container {
 			0.45 * this.scene.W,
 			0.1 * this.scene.H
 		);
+
+		this.owner = new ShopOwner(scene, 0.4 * this.scene.W, 0.62 * scene.H);
+		this.add(this.owner);
 
 		this.trampoline = new Trampoline(scene, 0.25 * scene.W, 0.85 * scene.H);
 		this.add(this.trampoline);
@@ -56,6 +61,7 @@ export class OverworldState extends Phaser.GameObjects.Container {
 	update(time: number, delta: number) {
 		if (!this.visible) return;
 
+		this.owner.update(time, delta);
 		this.trampoline.update(time, delta);
 		this.turtles.forEach((turtle) => {
 			turtle.update(time, delta);
