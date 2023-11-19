@@ -39,6 +39,11 @@ export class GameScene extends BaseScene {
 		this.ui.update(time, delta);
 	}
 
+	addDust(x: number, y: number)
+	{
+		this.overworld.addDust(x,y);
+	}
+
 	setState(state: State) {
 		this.state = state;
 		this.events.emit(`state_${state}`);

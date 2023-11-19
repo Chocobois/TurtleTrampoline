@@ -56,6 +56,15 @@ export class OverworldState extends Phaser.GameObjects.Container {
 		this.someButton.on("click", () => {
 			this.scene.setState(State.Shop);
 		});
+		const expl = {
+			key: 'dust_explosion',
+			frames: 'dust',
+			frameRate: 12,
+			showOnStart: true,
+			hideOnComplete: true,
+		};
+
+		this.scene.anims.create(expl);
 	}
 
 	update(time: number, delta: number) {
@@ -66,6 +75,12 @@ export class OverworldState extends Phaser.GameObjects.Container {
 		this.turtles.forEach((turtle) => {
 			turtle.update(time, delta);
 		});
+	}
+
+	addDust(x: number, y: number)
+	{
+		let xpl = this.scene.add.sprite(x, y, 'dust_explosion');
+		xpl.play({ key: 'dust_explosion', delay: 0 });
 	}
 
 	addTurtle() {
