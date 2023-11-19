@@ -19,8 +19,8 @@ export class Turtle extends Button {
 	private spriteSize: number;
 	public sprite: Phaser.GameObjects.Sprite;
 	private tween: Phaser.Tweens.Tween;
-	private debug: Phaser.GameObjects.Ellipse;
-	private debugLand: Phaser.GameObjects.Ellipse;
+	// private debug: Phaser.GameObjects.Ellipse;
+	// private debugLand: Phaser.GameObjects.Ellipse;
 
 	// Controls
 	public physicsPosition: Phaser.Math.Vector2;
@@ -30,6 +30,11 @@ export class Turtle extends Button {
 	private border: { [key: string]: number };
 	private dragOffset: Phaser.Math.Vector2;
 
+	// Walking
+	private ground: Phaser.Geom.Rectangle;
+	private walkTarget: Phaser.Geom.Point;
+	private walkTimer: number;
+
 	// Jumping
 	private trampoline: Trampoline;
 	private feetOffset: number;
@@ -37,17 +42,24 @@ export class Turtle extends Button {
 	private hasCrashed: boolean;
 	private jumpTarget: Phaser.Geom.Point;
 	private jumpTargetTween: Phaser.Tweens.Tween;
+	private maxJumpSpeed: number;
 	public bounceCount: number;
 
-	constructor(scene: GameScene, x: number, y: number, trampoline: Trampoline) {
+	constructor(
+		scene: GameScene,
+		x: number,
+		y: number,
+		trampoline: Trampoline,
+		ground: Phaser.Geom.Rectangle
+	) {
 		super(scene, x, y);
 		scene.add.existing(this);
 		this.scene = scene;
 
-		this.debugLand = this.scene.add
-			.ellipse(0, 0, 30, 30, 0xff0000)
-			.setDepth(1000);
-		this.debug = this.scene.add.ellipse(0, 0, 20, 20, 0x007700).setDepth(1000);
+		// this.debugLand = this.scene.add
+		// 	.ellipse(0, 0, 30, 30, 0xff0000)
+		// 	.setDepth(1000);
+		// this.debug = this.scene.add.ellipse(0, 0, 20, 20, 0x007700).setDepth(1000);
 
 		/* Sprite */
 		this.spriteSize = 200;
@@ -66,6 +78,13 @@ export class Turtle extends Button {
 			bottom: scene.H - 200,
 		};
 
+		/* Walking */
+		this.walkTarget = new Phaser.Geom.Point();
+		this.ground = ground;
+		this.newWalkTarget();
+		this.border.bottom = this.walkTarget.y;
+		this.walkTimer = 0;
+
 		/* Trampoline */
 		this.trampoline = trampoline;
 		this.feetOffset = 0;
@@ -73,6 +92,7 @@ export class Turtle extends Button {
 		this.hasCrashed = false;
 		this.jumpTarget = new Phaser.Geom.Point();
 		this.newJumpTarget();
+		this.maxJumpSpeed = Phaser.Math.RND.between(27, 31);
 		this.bounceCount = 0;
 
 		/* Input */
@@ -95,7 +115,7 @@ export class Turtle extends Button {
 					this.physicsPosition.y + this.feetOffset >=
 					this.trampoline.zone.bottom
 				) {
-					let maxSpeed = 30;
+					let maxSpeed = this.maxJumpSpeed;
 					let landSpeed = Math.max(this.physicsVelocity.y, 2);
 					let jumpSpeed =
 						Phaser.Math.Easing.Sine.Out(landSpeed / maxSpeed) * maxSpeed;
@@ -108,7 +128,7 @@ export class Turtle extends Button {
 				}
 				// In air above trampoline
 				else {
-					// Driction
+					// Friction
 					this.physicsVelocity.x = 0.97 * this.physicsVelocity.x;
 
 					// Drift towards desired location on trampoline
@@ -132,6 +152,15 @@ export class Turtle extends Button {
 
 			// Grounded
 			else if (this.isGrounded) {
+				// Walking
+				if (!this.lostBalance) {
+					const distance = this.walkTarget.x - this.physicsPosition.x;
+					if (Math.abs(distance) > 5) {
+						const walkingSpeed = 1.0;
+						this.physicsVelocity.x += walkingSpeed * Math.sign(distance);
+					}
+				}
+
 				// Friction
 				this.physicsVelocity.x = 0.5 * this.physicsVelocity.x;
 				// Stop fall
@@ -163,8 +192,8 @@ export class Turtle extends Button {
 		// Movement
 		this.x += 0.5 * (this.physicsPosition.x - this.x);
 		this.y += 0.5 * (this.physicsPosition.y - this.y);
-		this.debug.setPosition(this.x, this.physicsPosition.y + this.feetOffset);
-		this.debugLand.setPosition(this.jumpTarget.x, this.jumpTarget.y);
+		// this.debug.setPosition(this.x, this.physicsPosition.y + this.feetOffset);
+		// this.debugLand.setPosition(this.walkTarget.x, this.walkTarget.y);
 
 		if (this.hold) {
 			this.dragVelocity.set(
@@ -179,17 +208,34 @@ export class Turtle extends Button {
 		const squish = 0.02 * Math.sin((6 * time) / 1000);
 		this.setScale(1.0 + squish, 1.0 - squish);
 
+		const scale = this.spriteSize / this.sprite.width;
+		const facing = -Math.sign(this.physicsVelocity.x) || 1;
+		this.sprite.setScale(scale * facing, scale);
 		this.sprite.angle = this.dragVelocity.x;
 
-		if (this.isOnTrampoline) {
+		if (this.hold || this.isOnTrampoline) {
 			this.sprite.setTexture("turtle_jumping");
 		} else if (this.isGrounded) {
 			if (this.lostBalance) {
 				this.sprite.setTexture("turtle_stuck");
 				this.setSpriteOrigin(0.5, 0.8);
 				this.sprite.angle = 10 * Math.sin((7 * time) / 1000);
+			} else if (Math.abs(this.physicsVelocity.x) > 0.1) {
+				const walkSprites = [
+					"turtle_walking",
+					"turtle_walking1",
+					"turtle_walking",
+					"turtle_walking2",
+				];
+				this.walkTimer += 1;
+				this.sprite.setTexture(
+					walkSprites[Math.floor(this.walkTimer / 20) % walkSprites.length]
+				);
 			} else {
 				this.sprite.setTexture("turtle_waiting");
+				if (Math.random() < 0.01) {
+					this.newWalkTarget();
+				}
 			}
 		} else {
 			if (this.lostBalance) {
@@ -201,7 +247,7 @@ export class Turtle extends Button {
 
 		// Depth sorting
 		this.sprite.setPosition(this.x, this.y);
-		let depth = this.jumpTarget.y;
+		let depth = this.jumpTarget.y + this.walkTarget.y;
 		if (this.hold) depth += 100;
 		this.sprite.setDepth(depth);
 	}
@@ -245,6 +291,15 @@ export class Turtle extends Button {
 		this.sprite.x += (ox - this.sprite.originX) * this.sprite.displayWidth;
 		this.sprite.y += (oy - this.sprite.originY) * this.sprite.displayHeight;
 		this.sprite.setOrigin(ox, oy);
+	}
+
+	newWalkTarget() {
+		let y = this.walkTarget.y;
+		Phaser.Geom.Rectangle.Random(this.ground, this.walkTarget);
+		if (y != 0) {
+			// Hack because it's hard to make them move up or down
+			this.walkTarget.y = y;
+		}
 	}
 
 	newJumpTarget() {

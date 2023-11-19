@@ -1,4 +1,5 @@
 import { GameScene, State } from "@/scenes/GameScene";
+import { ShopOwner } from "@/components/ShopOwner";
 import { Turtle } from "@/components/Turtle";
 import { Button } from "@/components/Button";
 import { Trampoline } from "@/components/Trampoline";
@@ -7,9 +8,12 @@ export class OverworldState extends Phaser.GameObjects.Container {
 	public scene: GameScene;
 
 	private background: Phaser.GameObjects.Image;
+	private owner: ShopOwner;
 	private trampoline: Trampoline;
 	private turtles: Turtle[];
 	private someButton: Button;
+
+	private ground: Phaser.Geom.Rectangle;
 
 	constructor(scene: GameScene) {
 		super(scene, 0, 0);
@@ -20,6 +24,16 @@ export class OverworldState extends Phaser.GameObjects.Container {
 		this.background.setOrigin(0);
 		scene.fitToScreen(this.background);
 		this.add(this.background);
+
+		this.ground = new Phaser.Geom.Rectangle(
+			0.5 * this.scene.W,
+			0.8 * this.scene.H,
+			0.45 * this.scene.W,
+			0.1 * this.scene.H
+		);
+
+		this.owner = new ShopOwner(scene, 0.4 * this.scene.W, 0.62 * scene.H);
+		this.add(this.owner);
 
 		this.trampoline = new Trampoline(scene, 0.25 * scene.W, 0.85 * scene.H);
 		this.add(this.trampoline);
@@ -56,6 +70,7 @@ export class OverworldState extends Phaser.GameObjects.Container {
 	update(time: number, delta: number) {
 		if (!this.visible) return;
 
+		this.owner.update(time, delta);
 		this.trampoline.update(time, delta);
 		this.turtles.forEach((turtle) => {
 			turtle.update(time, delta);
@@ -71,8 +86,9 @@ export class OverworldState extends Phaser.GameObjects.Container {
 	addTurtle() {
 		let x = this.scene.W * (0.5 + 0.4 * Math.random());
 		let y = this.scene.H * (0.6 + 0.2 * Math.random());
-		let turtle = new Turtle(this.scene, x, y, this.trampoline);
+		let turtle = new Turtle(this.scene, x, y, this.trampoline, this.ground);
 		this.add(turtle);
+		this.add(turtle.sprite);
 		this.turtles.push(turtle);
 
 		turtle.on("bounce", () => {
