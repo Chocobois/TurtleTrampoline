@@ -52,6 +52,7 @@ const audios: Audio[] = [
 	music("title", "m_main_menu"),
 	music("first", "m_first"),
 	sound("tree/rustle", "t_rustle", 0.5),
+	sound("turtle/score", "score", 0.5),
 ];
 
 /* Fonts */

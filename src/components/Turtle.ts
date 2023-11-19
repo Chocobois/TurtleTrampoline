@@ -7,6 +7,7 @@ const ACCELERATION = 150;
 const MAX_SPEED = 400;
 const FRICTION = 0.7;
 const TAPPING_TIMER = 200; // ms
+const MAX_FADE = 2000;
 console.assert(
 	ACCELERATION / (1 - FRICTION) >= MAX_SPEED,
 	"Max speed unreachable"
@@ -35,9 +36,14 @@ export class Turtle extends Button {
 	private walkTarget: Phaser.Geom.Point;
 	private walkTimer: number;
 
-	//Scor
+	//Score
 	private baseScore: number;
 	private multiplier: number;
+
+	//Fade/leaving variables
+	private fadeTimer: number;
+	private leaving: boolean;
+	private deleteFlag: boolean;
 
 	// Jumping
 	private trampoline: Trampoline;
@@ -100,6 +106,9 @@ export class Turtle extends Button {
 		this.bounceCount = 0;
 		this.baseScore = 50+(Math.random()*100);
 		this.multiplier = 1.0;
+		this.leaving =  false;
+		this.fadeTimer = 0;
+		this.deleteFlag = false;
 
 		/* Input */
 		this.dragOffset = new Phaser.Math.Vector2();
@@ -115,6 +124,7 @@ export class Turtle extends Button {
 			// Trampoline
 			if (this.isOnTrampoline) {
 				// Bounce on trampoline rug
+				//this.scene.addScore(1);
 				if (
 					this.physicsPosition.y + this.feetOffset >=
 					this.trampoline.zone.bottom
@@ -127,6 +137,7 @@ export class Turtle extends Button {
 
 					if (jumpSpeed > maxSpeed - 10) {
 						this.bounceCount += 1;
+						//this.scene.addScore(1);
 						this.multiplier += 0.05;
 						this.scene.sound.play("t_rustle",{ volume: 0.5 });
 						this.emit("bounce");
@@ -164,6 +175,20 @@ export class Turtle extends Button {
 					if (Math.abs(distance) > 5) {
 						const walkingSpeed = 1.0;
 						this.physicsVelocity.x += walkingSpeed * Math.sign(distance);
+					}
+
+					if(this.multiplier > 1) {
+						if(this.fadeTimer > 0 && this.leaving) {
+							this.fadeTimer -= delta;
+							if(this.fadeTimer <= 0)
+							{
+								this.fadeTimer = 0;
+								this.deleteFlag = true;
+							}
+							this.sprite.setAlpha(this.fadeTimer/MAX_FADE);
+						} else if (!this.leaving) {
+							this.turtleLeave();
+						}
 					}
 				}
 
@@ -250,6 +275,18 @@ export class Turtle extends Button {
 				this.sprite.setTexture("turtle_jumping");
 			}
 		}
+	}
+
+
+	turtleLeave(){
+		this.leaving = true;
+		this.disableInteractive();
+		this.sprite.disableInteractive();
+		this.fadeTimer = MAX_FADE;
+		let s = Math.round(this.multiplier*this.baseScore);
+		this.scene.addScore(s);
+		this.scene.sound.play("score", {volume: 1.0});
+		this.scene.addTextParticle(this.x+this.sprite.x, this.y+this.sprite.y-70, "green", `+ $` + `${s}`, 80);
 	}
 
 	/* Jumping */

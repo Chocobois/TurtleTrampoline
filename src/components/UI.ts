@@ -6,6 +6,7 @@ export class UI extends Phaser.GameObjects.Container {
 	private panel: Phaser.GameObjects.Container;
 	private background: Phaser.GameObjects.Image;
 	private text: Phaser.GameObjects.Text;
+	private score: number;
 
 	constructor(scene: GameScene) {
 		super(scene, 0, 0);
@@ -27,11 +28,13 @@ export class UI extends Phaser.GameObjects.Container {
 			y: 0,
 			size: 60,
 			color: "#FFFFFF",
-			text: "Score: 123",
+			text: "Score: 0",
 		});
 		this.text.setStroke("black", 8);
 		this.text.setOrigin(0, 0.5);
 		this.panel.add(this.text);
+		this.score = 0;
+
 
 		this.panel.setPosition(
 			this.scene.W - this.background.displayWidth / 2 - 30,
@@ -39,5 +42,16 @@ export class UI extends Phaser.GameObjects.Container {
 		);
 	}
 
+	addScore(score: number)
+	{
+		this.score += score;
+		this.text.setText('Score: ' + this.score.toString());
+	}
+
+	setScore(score: number)
+	{
+		this.score = score;
+		this.text.setText('Score: ' + this.score.toString());
+	}
 	update(time: number, delta: number) {}
 }
