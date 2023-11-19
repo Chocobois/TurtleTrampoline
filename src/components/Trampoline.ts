@@ -46,9 +46,9 @@ export class Trampoline extends Button {
 		const holdX = 1.0 + 0.2 * this.holdSmooth;
 		const holdY = 1.0 - 0.1 * this.holdSmooth;
 		const squish = 0.01;
-		// this.setScale(
-		// 	(1.0 + squish * Math.sin(time / 200)) * holdX,
-		// 	(1.0 + squish * Math.sin(-time / 200)) * holdY
-		// );
+		this.setScale(
+			(1.0 + squish * Math.sin(time / 200)) * holdX,
+			(1.0 + squish * Math.sin(-time / 200)) * holdY
+		);
 	}
 }
