@@ -32,9 +32,11 @@ export class Turtle extends Button {
 
 	// Jumping
 	private trampoline: Trampoline;
+	private feetOffset: number;
 	private lostBalance: boolean;
 	private hasCrashed: boolean;
-	private trampolineLocation: Phaser.Math.Vector2;
+	private jumpTarget: Phaser.Geom.Point;
+	private jumpTargetTween: Phaser.Tweens.Tween;
 	public bounceCount: number;
 
 	constructor(scene: GameScene, x: number, y: number, trampoline: Trampoline) {
@@ -42,14 +44,16 @@ export class Turtle extends Button {
 		scene.add.existing(this);
 		this.scene = scene;
 
-		this.debugLand = this.scene.add.ellipse(0, 0, 30, 30, 0xff0000);
-		this.debug = this.scene.add.ellipse(0, 0, 20, 20, 0x007700);
+		this.debugLand = this.scene.add
+			.ellipse(0, 0, 30, 30, 0xff0000)
+			.setDepth(1000);
+		this.debug = this.scene.add.ellipse(0, 0, 20, 20, 0x007700).setDepth(1000);
 
 		/* Sprite */
 		this.spriteSize = 200;
 		this.sprite = this.scene.add.sprite(0, 0, "turtle_waiting");
 		this.sprite.setScale(this.spriteSize / this.sprite.width);
-		this.add(this.sprite);
+		// this.add(this.sprite);
 
 		/* Controls */
 		this.physicsPosition = new Phaser.Math.Vector2(x, y);
@@ -64,12 +68,11 @@ export class Turtle extends Button {
 
 		/* Trampoline */
 		this.trampoline = trampoline;
+		this.feetOffset = 0;
 		this.lostBalance = false;
 		this.hasCrashed = false;
-		this.trampolineLocation = new Phaser.Math.Vector2(
-			this.trampoline.x,
-			this.trampoline.zone.bottom // +/- 60
-		);
+		this.jumpTarget = new Phaser.Geom.Point();
+		this.newJumpTarget();
 		this.bounceCount = 0;
 
 		/* Input */
@@ -78,33 +81,22 @@ export class Turtle extends Button {
 	}
 
 	update(time: number, delta: number) {
+		// Feet
+		this.updateFeetOffset();
+
 		// "Physics"
 		if (!this.hold) {
 			// Trampoline
 			if (this.isOnTrampoline) {
-				// In air above trampoline
+				this.sprite.setDepth(100 * Math.random());
+
+				// Bounce on trampoline rug
 				if (
-					this.physicsPosition.y + this.feetOffset <
+					this.physicsPosition.y + this.feetOffset >=
 					this.trampoline.zone.bottom
 				) {
-					// Driction
-					this.physicsVelocity.x = 0.97 * this.physicsVelocity.x;
-
-					// Drift towards desired location on trampoline
-					if (this.bounceCount > 0) {
-						this.physicsPosition.x +=
-							0.01 * (this.trampolineLocation.x - this.physicsPosition.x);
-					}
-
-					this.physicsVelocity.y += 1;
-					if (this.isFallingTooQuickly) {
-						this.lostBalance = true;
-					}
-				}
-				// On trampoline rug
-				else {
 					let maxSpeed = 30;
-					let landSpeed = Math.max(this.physicsVelocity.y, 1);
+					let landSpeed = Math.max(this.physicsVelocity.y, 2);
 					let jumpSpeed =
 						Phaser.Math.Easing.Sine.Out(landSpeed / maxSpeed) * maxSpeed;
 					this.physicsVelocity.y = -Math.min(jumpSpeed, maxSpeed);
@@ -112,6 +104,28 @@ export class Turtle extends Button {
 					if (jumpSpeed > maxSpeed - 10) {
 						this.bounceCount += 1;
 						this.emit("bounce");
+					}
+				}
+				// In air above trampoline
+				else {
+					// Driction
+					this.physicsVelocity.x = 0.97 * this.physicsVelocity.x;
+
+					// Drift towards desired location on trampoline
+					if (this.bounceCount > 0) {
+						this.physicsPosition.x +=
+							0.01 * (this.jumpTarget.x - this.physicsPosition.x);
+
+						if (this.physicsPosition.y < 300) {
+							if (Math.random() < 0.01) {
+								this.newJumpTarget();
+							}
+						}
+					}
+
+					this.physicsVelocity.y += 1;
+					if (this.isFallingTooQuickly) {
+						this.lostBalance = true;
 					}
 				}
 			}
@@ -149,11 +163,8 @@ export class Turtle extends Button {
 		// Movement
 		this.x += 0.5 * (this.physicsPosition.x - this.x);
 		this.y += 0.5 * (this.physicsPosition.y - this.y);
-		this.debug.setPosition(this.x, this.y + this.feetOffset);
-		this.debugLand.setPosition(
-			this.trampolineLocation.x,
-			this.trampolineLocation.y
-		);
+		this.debug.setPosition(this.x, this.physicsPosition.y + this.feetOffset);
+		this.debugLand.setPosition(this.jumpTarget.x, this.jumpTarget.y);
 
 		if (this.hold) {
 			this.dragVelocity.set(
@@ -187,9 +198,33 @@ export class Turtle extends Button {
 				this.sprite.setTexture("turtle_jumping");
 			}
 		}
+
+		// Depth sorting
+		this.sprite.setPosition(this.x, this.y);
+		let depth = this.jumpTarget.y;
+		if (this.hold) depth += 100;
+		this.sprite.setDepth(depth);
 	}
 
 	/* Jumping */
+
+	updateFeetOffset() {
+		// Stuck on back on ground
+		if (this.lostBalance) {
+			this.feetOffset = 0.0 * this.sprite.displayHeight;
+		}
+		// Trampoline landing location
+		else if (this.isOnTrampoline) {
+			this.feetOffset =
+				this.trampoline.zone.bottom -
+				this.jumpTarget.y +
+				0.4 * this.sprite.displayHeight;
+		}
+		// Standing on ground
+		else {
+			this.feetOffset = 0.4 * this.sprite.displayHeight;
+		}
+	}
 
 	doABarrelRoll() {
 		if (!this.tween || !this.tween.isActive()) {
@@ -212,33 +247,34 @@ export class Turtle extends Button {
 		this.sprite.setOrigin(ox, oy);
 	}
 
-	get isGrounded() {
-		return this.physicsPosition.y + this.feetOffset >= this.border.bottom;
+	newJumpTarget() {
+		let target = Phaser.Geom.Ellipse.Random(this.trampoline.surface);
+
+		if (!this.jumpTargetTween || !this.jumpTargetTween.isActive()) {
+			this.jumpTargetTween = this.scene.tweens.add({
+				targets: this.jumpTarget,
+				x: {
+					from: this.jumpTarget.x,
+					to: target.x,
+				},
+				y: {
+					from: this.jumpTarget.y,
+					to: target.y,
+				},
+				ease: "Cubic.Out",
+				duration: 500,
+			});
+		}
 	}
 
-	get feetOffset() {
-		// Stuck on back on ground
-		if (this.lostBalance) {
-			return 0.0 * this.sprite.displayHeight;
-		}
-		// Trampoline landing location
-		else if (this.isOnTrampoline) {
-			return (
-				this.trampoline.zone.bottom -
-				this.trampolineLocation.y +
-				0.4 * this.sprite.displayHeight
-			);
-		}
-		// Standing on ground
-		else {
-			return 0.4 * this.sprite.displayHeight;
-		}
+	get isGrounded() {
+		return this.physicsPosition.y + this.feetOffset >= this.border.bottom;
 	}
 
 	get isOnTrampoline(): boolean {
 		return (
 			!this.lostBalance &&
-			this.trampoline.zone.contains(this.x, this.y /*+ this.feetOffset*/)
+			this.trampoline.zone.contains(this.x, this.y + this.feetOffset - 10)
 		);
 	}
 
@@ -252,7 +288,7 @@ export class Turtle extends Button {
 			);
 		} else {
 			// When falling after player drops them
-			return this.physicsVelocity.y > 20;
+			return this.physicsVelocity.y > 25;
 		}
 	}
 
@@ -260,16 +296,14 @@ export class Turtle extends Button {
 
 	onDragStart(pointer: Phaser.Input.Pointer, dragX: number, dragY: number) {
 		this.dragOffset.set(dragX, dragY);
-		this.physicsPosition.set(dragX, dragY);
-
-		this.setSpriteOrigin(0.5, 0.3);
-
 		this.lostBalance = false;
 		this.hasCrashed = false;
 		this.bounceCount = 0;
+		this.onDrag(pointer, this.x, this.y);
 	}
 
 	onDrag(pointer: Phaser.Input.Pointer, dragX: number, dragY: number) {
+		this.setSpriteOrigin(0.5, 0.3);
 		this.physicsPosition.set(
 			dragX + this.dragOffset.x,
 			dragY + this.dragOffset.y

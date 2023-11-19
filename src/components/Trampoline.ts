@@ -8,6 +8,7 @@ export class Trampoline extends Button {
 	// Sprites
 	public sprite: Phaser.GameObjects.Sprite;
 	public zone: Phaser.Geom.Rectangle;
+	public surface: Phaser.Geom.Ellipse;
 
 	constructor(scene: GameScene, x: number, y: number) {
 		super(scene, x, y);
@@ -29,11 +30,18 @@ export class Trampoline extends Button {
 			this.y - 0.65 * this.sprite.displayHeight
 		);
 		// Debug draw zone
-		this.scene.add
-			.graphics({
-				fillStyle: { color: 0xff0000, alpha: 0.5 },
-			})
-			.fillRectShape(this.zone);
+		// this.scene.add
+		// 	.graphics({
+		// 		fillStyle: { color: 0xff0000, alpha: 0.5 },
+		// 	})
+		// 	.fillRectShape(this.zone);
+
+		this.surface = new Phaser.Geom.Ellipse(
+			this.x,
+			this.zone.bottom,
+			0.8 * this.width,
+			120
+		);
 
 		/* Input */
 		this.bindInteractive(this.sprite, true);
