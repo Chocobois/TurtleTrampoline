@@ -64,6 +64,8 @@ export class ShopState extends Phaser.GameObjects.Container {
 
 	private selectedItem: ShopItem | undefined;
 
+	private buyButton: Button;
+
 	constructor(scene: GameScene) {
 		super(scene, 0, 0);
 		this.scene = scene;
@@ -96,6 +98,20 @@ export class ShopState extends Phaser.GameObjects.Container {
 
 		this.shopper = new Shopper(scene, 0.5, 0.5);
 		this.add(this.shopper);
+
+		this.buyButton = new Button(this.scene, this.scene.W * 0.6, this.scene.H * 0.6);
+		const buySign = this.scene.add.sprite(0, 0, 'buy_button').setOrigin(0.3, 0.35);
+		this.buyButton.add(buySign);
+		this.buyButton.add(this.scene.add.text(0, 0, 'BUY', {fontSize: 80, fontStyle: 'bold', align: 'center'}));
+		this.buyButton.bindInteractive(buySign, true);
+		this.buyButton.on('click', () => {
+			if(this.selectedItem)
+				console.log('Buying', this.selectedItem);
+			else
+				console.log('Select item first')
+		});
+		this.add(this.buyButton);
+
 	}
 
 	populateShop() {
