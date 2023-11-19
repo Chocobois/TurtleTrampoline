@@ -137,9 +137,9 @@ export class Turtle extends Button {
 				// Stop fall
 				this.physicsVelocity.y = 0;
 				this.physicsPosition.y = this.border.bottom - this.feetOffset;
-
 				if (this.lostBalance && !this.hasCrashed) {
 					this.hasCrashed = true;
+					this.scene.addDust(this.x+this.sprite.x, this.y+this.sprite.y);
 					this.emit("crashed");
 				}
 			}
