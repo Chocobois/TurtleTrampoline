@@ -11,6 +11,8 @@ export class OverworldState extends Phaser.GameObjects.Container {
 	private turtles: Turtle[];
 	private someButton: Button;
 
+	private ground: Phaser.Geom.Rectangle;
+
 	constructor(scene: GameScene) {
 		super(scene, 0, 0);
 		this.scene = scene;
@@ -20,6 +22,13 @@ export class OverworldState extends Phaser.GameObjects.Container {
 		this.background.setOrigin(0);
 		scene.fitToScreen(this.background);
 		this.add(this.background);
+
+		this.ground = new Phaser.Geom.Rectangle(
+			0.5 * this.scene.W,
+			0.8 * this.scene.H,
+			0.45 * this.scene.W,
+			0.1 * this.scene.H
+		);
 
 		this.trampoline = new Trampoline(scene, 0.25 * scene.W, 0.85 * scene.H);
 		this.add(this.trampoline);
@@ -56,7 +65,7 @@ export class OverworldState extends Phaser.GameObjects.Container {
 	addTurtle() {
 		let x = this.scene.W * (0.5 + 0.4 * Math.random());
 		let y = this.scene.H * (0.6 + 0.2 * Math.random());
-		let turtle = new Turtle(this.scene, x, y, this.trampoline);
+		let turtle = new Turtle(this.scene, x, y, this.trampoline, this.ground);
 		this.add(turtle);
 		this.turtles.push(turtle);
 
