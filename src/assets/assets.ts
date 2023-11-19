@@ -14,8 +14,13 @@ const images: Image[] = [
 	image('characters/turtle_scared', 'turtle_scared'),
 	image('characters/turtle_stuck', 'turtle_stuck'),
 	image('characters/turtle_waiting', 'turtle_waiting'),
+	image('characters/turtle_waiting', 'turtle_waiting_angry'),
+	image('characters/turtle_waiting', 'turtle_walking'),
 	image('characters/turtle_walking1', 'turtle_walking1'),
-	image('characters/turtle_walking2', 'turtle_walking2'), // For walking animation, do this: turtle_waiting - turtle_walking1 - turtle_waiting - turtle_walking2 -loop
+	image('characters/turtle_walking2', 'turtle_walking2'), // For walking animation, do this: turtle_walking - turtle_walking1 - turtle_walking - turtle_walking2 -loop
+	image('characters/turtle_waiting', 'turtle_walking_angry'),
+	image('characters/turtle_walking1', 'turtle_walking_angry1'),
+	image('characters/turtle_walking2', 'turtle_walking_angry2'), // For walking animation, do this: turtle_walking - turtle_walking1 - turtle_walking - turtle_walking2 -loop
 
 	// Items
 	image('items/coin', 'coin'),
