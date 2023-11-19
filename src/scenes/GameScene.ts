@@ -125,9 +125,10 @@ export class GameScene extends BaseScene {
 		this.musicTransition.active = false;
 	}
 
-	updateMusic(turtles: Turtle[], globalMute=false) {
+	updateMusic(allTurtles: Turtle[], globalMute=false) {
 		// TODO: Move to new file (Mato)
 		const tracks = this.musicTracks;
+		const turtles = allTurtles.filter(t => !t.leaving)
 
 		// Skip update if uninitialized
 		if (tracks.some(track => track === undefined)) return;
@@ -154,15 +155,6 @@ export class GameScene extends BaseScene {
 	wrapMusicBar(bar: number, firstLoopBar=3, lastLoopBar=98) {
 		return (bar <= lastLoopBar) ? bar
 		: bar % (lastLoopBar) + firstLoopBar
-	}
-
-	addScore(score: number)
-	{
-		this.ui.addScore(score);
-	}
-
-	get SCALE() {
-		return this.H / 1080;
 	}
 
 	addScore(score: number)

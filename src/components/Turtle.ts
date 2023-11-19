@@ -45,7 +45,7 @@ export class Turtle extends Button {
 
 	//Fade/leaving variables
 	private fadeTimer: number;
-	private leaving: boolean;
+	public leaving: boolean;
 	private deleteFlag: boolean;
 
 	// Jumping
