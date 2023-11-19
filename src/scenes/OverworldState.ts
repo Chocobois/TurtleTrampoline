@@ -77,6 +77,14 @@ export class OverworldState extends Phaser.GameObjects.Container {
 		});
 	}
 
+	setVisible(value: boolean): this {
+		this.turtles.forEach((turtle) => {
+			turtle.sprite.setVisible(value);
+		});
+
+		return super.setVisible(value);
+	}
+
 	addDust(x: number, y: number)
 	{
 		let xpl = this.scene.add.sprite(x, y, 'dust_explosion');

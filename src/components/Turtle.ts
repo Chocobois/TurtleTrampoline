@@ -65,7 +65,7 @@ export class Turtle extends Button {
 		this.spriteSize = 200;
 		this.sprite = this.scene.add.sprite(0, 0, "turtle_waiting");
 		this.sprite.setScale(this.spriteSize / this.sprite.width);
-		this.add(this.sprite);
+		// this.add(this.sprite);
 
 		/* Controls */
 		this.physicsPosition = new Phaser.Math.Vector2(x, y);
@@ -242,6 +242,17 @@ export class Turtle extends Button {
 				this.sprite.setTexture("turtle_jumping");
 			}
 		}
+
+		// Depth sorting
+		this.sprite.setPosition(this.x, this.y);
+		let depth = 100;
+		if (this.isOnTrampoline) {
+			depth += this.jumpTarget.y / 100;
+		} else {
+			depth += this.walkTarget.y / 100;
+		}
+		if (this.hold) depth += 100;
+		this.sprite.setDepth(depth);
 	}
 
 	/* Jumping */
@@ -346,7 +357,7 @@ export class Turtle extends Button {
 		this.lostBalance = false;
 		this.hasCrashed = false;
 		this.bounceCount = 0;
-		this.onDrag(pointer, 0, 0);
+		this.onDrag(pointer, this.x, this.y);
 	}
 
 	onDrag(pointer: Phaser.Input.Pointer, dragX: number, dragY: number) {
