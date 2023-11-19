@@ -44,7 +44,7 @@ const images: Image[] = [
 
 /* Spritesheets */
 const spritesheets: SpriteSheet[] = [
-	spritesheet('effects/dustyexplosion', 'dust', 128, 128),
+	spritesheet('effects/dustyexplosion', 'dust', 256, 256),
 ];
 
 /* Audios */

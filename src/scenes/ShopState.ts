@@ -62,6 +62,8 @@ export class ShopState extends Phaser.GameObjects.Container {
 	private itemsForSale: Item[];
 	private shopper: Shopper;
 
+	private selectedItem: ShopItem | undefined;
+
 	constructor(scene: GameScene) {
 		super(scene, 0, 0);
 		this.scene = scene;
@@ -109,9 +111,10 @@ export class ShopState extends Phaser.GameObjects.Container {
 			new ShopItem(this.scene, Wstart + itemPositions[i].x * Wdist, Hstart + itemPositions[i].y * Hdist, item.image[0])
 		);
 
-		items.forEach((elem) => {
-			elem.on('click', () => {
-				console.log("click")
+		items.forEach((item) => {
+			this.add(item);
+			item.on('click', () => {
+				this.selectedItem = item;
 			});
 		});
 	}
