@@ -2,6 +2,7 @@ import { BaseScene } from "@/scenes/BaseScene";
 import { OverworldState } from "@/scenes/OverworldState";
 import { ShopState } from "@/scenes/ShopState";
 import { UI } from "@/components/UI";
+import { TextParticle, TextParticleEffects } from "../components/TextParticle";
 import { Music } from "@/components/Music";
 import { MusicKey } from "@/components/MusicData";
 import { Turtle } from "@/components/Turtle";
@@ -18,6 +19,9 @@ export class GameScene extends BaseScene {
 
 	private state: State;
 	private health: number;
+
+	//hacky rerooted text particles
+	public textParticles: TextParticle;
 
 	private musicTracks: Music[];
 	private musicBase: Music;
@@ -46,7 +50,7 @@ export class GameScene extends BaseScene {
 		this.overworld = new OverworldState(this);
 		this.shop = new ShopState(this);
 		this.ui = new UI(this);
-
+		this.textParticles = new TextParticle(this);
 		this.musicTransition = { active: false, bar: 0 };
 
 		const volume = 0.4;
@@ -76,12 +80,31 @@ export class GameScene extends BaseScene {
 		this.overworld.update(time, delta);
 		this.shop.update(time, delta);
 		this.ui.update(time, delta);
+		this.textParticles.update(time, delta);
 		this.updateMusic(this.overworld.turtles);
 	}
 
 	addDust(x: number, y: number)
 	{
 		this.overworld.addDust(x,y);
+	}
+
+	addTextParticle(x: number, y: number, color: string, content: string, size: number)
+	{
+		this.textParticle(x, y, color, content, undefined, size);
+	}
+
+	textParticle(x: number, y: number, color: string, content: string, outline: boolean=true, size: number=40,
+		duration: number=1.5, effects: TextParticleEffects={ wave: {enable: true}, fadeOut: {enable: true} }) {
+
+		const text = this.createText(x, y, size, color, content);
+		if(outline) text.setStroke("rgba(0,0,0,0.5)", 120*this.SCALE);
+
+		// Prevent text from going too far right **not working due to shenanignas with TS
+		const diff = this.W - 80 * this.SCALE;
+		if(diff < 0) text.setX(text.x+diff);
+
+		this.textParticles.push(text, duration, effects);
 	}
 
 	setState(state: State) {
@@ -131,5 +154,23 @@ export class GameScene extends BaseScene {
 	wrapMusicBar(bar: number, firstLoopBar=3, lastLoopBar=98) {
 		return (bar <= lastLoopBar) ? bar
 		: bar % (lastLoopBar) + firstLoopBar
+	}
+
+	addScore(score: number)
+	{
+		this.ui.addScore(score);
+	}
+
+	get SCALE() {
+		return this.H / 1080;
+	}
+
+	addScore(score: number)
+	{
+		this.ui.addScore(score);
+	}
+
+	get SCALE() {
+		return this.H / 1080;
 	}
 }
