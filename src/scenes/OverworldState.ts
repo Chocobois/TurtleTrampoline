@@ -56,18 +56,16 @@ export class OverworldState extends Phaser.GameObjects.Container {
 	addTurtle() {
 		let x = this.scene.W * (0.5 + 0.4 * Math.random());
 		let y = this.scene.H * (0.6 + 0.2 * Math.random());
-		let turtle = new Turtle(this.scene, x, y);
+		let turtle = new Turtle(this.scene, x, y, this.trampoline);
 		this.add(turtle);
 		this.turtles.push(turtle);
 
-		turtle.on("click", () => {
-			if (
-				this.trampoline.zone.contains(turtle.x, turtle.y + turtle.feetOffset)
-			) {
-				turtle.setTrampolineZone(this.trampoline.zone);
-			} else {
-				turtle.setTrampolineZone(undefined);
-			}
+		turtle.on("bounce", () => {
+			// Bounce!
+		});
+
+		turtle.on("crashed", () => {
+			// Landed on its back!
 		});
 	}
 }
