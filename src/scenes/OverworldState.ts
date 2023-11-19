@@ -10,6 +10,7 @@ export class OverworldState extends Phaser.GameObjects.Container {
 	private trampoline: Trampoline;
 	private turtles: Turtle[];
 	private someButton: Button;
+	private graphicsOverlay: Phaser.GameObjects.Graphics;
 
 	constructor(scene: GameScene) {
 		super(scene, 0, 0);
@@ -19,6 +20,7 @@ export class OverworldState extends Phaser.GameObjects.Container {
 		this.background = scene.add.image(0, 0, "overworld");
 		this.background.setOrigin(0);
 		scene.fitToScreen(this.background);
+		this.graphicsOverlay = scene.add.graphics();
 		this.add(this.background);
 
 		this.trampoline = new Trampoline(
@@ -47,6 +49,41 @@ export class OverworldState extends Phaser.GameObjects.Container {
 		this.someButton.on("click", () => {
 			this.scene.setState(State.Shop);
 		});
+		this.add(this.graphicsOverlay);
+		const expl = {
+			key: 'explosion',
+			frames: 'explosion_tiny',
+			frameRate: 16,
+			showOnStart: true,
+			hideOnComplete: true,
+		};
+
+		this.scene.anims.create(expl);
+
+	}
+
+	drawLineToPointer(x: number, y: number, max: number)
+	{
+		let p = Phaser.Math.Angle.Between(x,y,this.scene.input.activePointer.x, this.scene.input.activePointer.y);
+		this.graphicsOverlay.clear();
+		this.graphicsOverlay.lineStyle(4, 0xff0000, 1);
+		if(Phaser.Math.Distance.Between(x,y,this.scene.input.activePointer.x, this.scene.input.activePointer.y) > max)
+		{
+			this.graphicsOverlay.lineBetween(x, y, x+max*Math.cos(p), y+max*Math.sin(p));
+		} else {
+			this.graphicsOverlay.lineBetween(x, y, this.scene.input.activePointer.x, this.scene.input.activePointer.y);			
+		}
+
+	}
+
+	explode(x: number, y: number) {
+		let xpl = this.scene.add.sprite(x, y-128, 'explosion');
+		xpl.play({ key: 'explosion', delay: 0 });
+	}
+
+	clearGraphics()
+	{
+		this.graphicsOverlay.clear();
 	}
 
 	update(time: number, delta: number) {

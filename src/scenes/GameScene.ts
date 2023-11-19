@@ -31,6 +31,21 @@ export class GameScene extends BaseScene {
 		this.ui = new UI(this);
 
 		this.setState(State.Overworld);
+
+	}
+
+	drawLineToPointer(x: number, y: number, max: number)
+	{
+		this.overworld.drawLineToPointer(x,y,max);
+	}
+
+	clearLineGraphics()
+	{
+		this.overworld.clearGraphics();
+	}
+
+	explode(x: number, y: number) {
+		this.overworld.explode(x,y);
 	}
 
 	update(time: number, delta: number) {

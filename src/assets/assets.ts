@@ -13,6 +13,7 @@ const images: Image[] = [
 	image('characters/turtle_jumping', 'turtle_jumping'),
 	image('characters/turtle_stuck', 'turtle_stuck'),
 	image('characters/turtle_waiting', 'turtle_waiting'),
+	image('characters/turtle_rip', 'turtle_rip'),
 
 	// Items
 	image('items/coin', 'coin'),
@@ -29,7 +30,7 @@ const images: Image[] = [
 
 /* Spritesheets */
 const spritesheets: SpriteSheet[] = [
-
+	spritesheet('effects/explosion_tiny', 'explosion_tiny', 512, 512),
 ];
 
 /* Audios */
@@ -37,6 +38,10 @@ const audios: Audio[] = [
 	music('title', 'm_main_menu'),
 	music('first', 'm_first'),
 	sound('tree/rustle', 't_rustle', 0.5),
+	sound('turtles/pichuun_super', 'pichuun', 0.5),
+	sound('turtles/slap', 'slap', 0.5),
+	sound('turtles/rip', 'rip', 0.5),
+	sound('turtles/saved', 'saved', 0.5),
 ];
 
 /* Fonts */
