@@ -24,6 +24,8 @@ const images: Image[] = [
 	// Items
 	image('items/coin', 'coin'),
 	image('items/spring', 'spring'),
+	image('items/screw', 'screw'),
+	image('items/nail', 'nail'),
 
 	// UI
 	image('ui/hud', 'hud'),
