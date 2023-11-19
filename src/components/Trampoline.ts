@@ -23,17 +23,17 @@ export class Trampoline extends Button {
 		this.add(this.sprite);
 
 		this.zone = new Phaser.Geom.Rectangle(
-			this.x - this.width / 2,
+			this.x - 0.4 * this.width,
 			0,
-			this.width,
+			0.8 * this.width,
 			this.y - 0.65 * this.sprite.displayHeight
 		);
 		// Debug draw zone
-		// this.scene.add
-		// 	.graphics({
-		// 		fillStyle: { color: 0xff0000, alpha: 0.5 },
-		// 	})
-		// 	.fillRectShape(this.zone);
+		this.scene.add
+			.graphics({
+				fillStyle: { color: 0xff0000, alpha: 0.5 },
+			})
+			.fillRectShape(this.zone);
 
 		/* Input */
 		this.bindInteractive(this.sprite, true);
