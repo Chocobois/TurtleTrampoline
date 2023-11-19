@@ -35,6 +35,10 @@ export class Turtle extends Button {
 	private walkTarget: Phaser.Geom.Point;
 	private walkTimer: number;
 
+	//Scor
+	private baseScore: number;
+	private multiplier: number;
+
 	// Jumping
 	private trampoline: Trampoline;
 	private feetOffset: number;
@@ -94,6 +98,8 @@ export class Turtle extends Button {
 		this.newJumpTarget();
 		this.maxJumpSpeed = Phaser.Math.RND.between(27, 31);
 		this.bounceCount = 0;
+		this.baseScore = 50+(Math.random()*100);
+		this.multiplier = 1.0;
 
 		/* Input */
 		this.dragOffset = new Phaser.Math.Vector2();
@@ -121,6 +127,8 @@ export class Turtle extends Button {
 
 					if (jumpSpeed > maxSpeed - 10) {
 						this.bounceCount += 1;
+						this.multiplier += 0.05;
+						this.scene.sound.play("t_rustle",{ volume: 0.5 });
 						this.emit("bounce");
 					}
 				}
@@ -166,7 +174,7 @@ export class Turtle extends Button {
 				this.physicsPosition.y = this.border.bottom - this.feetOffset;
 				if (this.lostBalance && !this.hasCrashed) {
 					this.hasCrashed = true;
-					this.scene.addDust(this.x+this.sprite.x, this.y+this.sprite.y);
+					this.scene.addDust(this.x+this.sprite.x, this.y+this.sprite.y-75);
 					this.emit("crashed");
 				}
 			}
