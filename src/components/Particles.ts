@@ -2,6 +2,7 @@ import { BaseScene } from "../scenes/BaseScene";
 
 enum ParticleType {
 	None = "",
+	Sparkle = "p_sparkle",
 	Explosion = "meme_explosion",
 	GreenMagic = "green_magic",
 	Shell = "shell", // Doesn't exist
@@ -130,6 +131,16 @@ class Particle extends Phaser.GameObjects.Sprite {
 
 		this.lifeTime = duration * (0.8 + 0.2*Math.random());
 	}
+	
+	sparkle(x: number, y: number, scale: number, duration: number, tint: number) {
+		this.init(x, y, ParticleType.Sparkle);
+
+		this.setTint(tint);
+		this.setOrigin(0.5);
+		this.setBlendMode("ADD");
+
+		this.lifeTime = duration * (0.8 + 0.2*Math.random());
+	}
 
 	dustExplosion(x: number, y: number, scale: number, duration: number, flip: boolean) {
 		this.init(x, y, ParticleType.DustExplosion);
@@ -200,6 +211,10 @@ class Particle extends Phaser.GameObjects.Sprite {
 			let frame = Math.floor(15 * (this.life / this.lifeTime));
 			// let frame = Math.floor(15 * Math.pow(this.life / this.lifeTime, 0.65));
 			this.setFrame(frame);
+		}
+
+		if (this.myType == ParticleType.Sparkle) {
+			this.setAlpha(1 - this.life / this.lifeTime);
 		}
 
 		if (this.myType == ParticleType.DustExplosion) {
@@ -315,6 +330,13 @@ export class Particles extends Phaser.GameObjects.Container {
 			particle.blueSparkle(x, y, scale, duration, flip);
 		});
 	}
+	
+	// 1 frame, 100x100
+	createSparkle(x: number, y: number, scale: number, duration: number, tint=0xFFFFFF) {
+		this.getFreeParticles(1).forEach((particle) => {
+			particle.sparkle(x, y, scale, duration, tint);
+		});
+	}
 
 	// 15 frames, 128x128
 	createDustExplosion(x: number, y: number, scale: number, duration: number, flip: boolean) {
@@ -326,6 +348,13 @@ export class Particles extends Phaser.GameObjects.Container {
 	createFire(x: number, y: number, scale: number, duration: number, flip: boolean) {
 		this.getFreeParticles(1).forEach((particle) => {
 			particle.fireExplosion(x, y, scale, duration, flip);
+		});
+	}
+
+	sparkleTrail(scope: any, repeat: number, delay: number, tint=0xFFFFFF) {
+		return new Phaser.Time.TimerEvent({
+			startAt: 0, repeat, delay, callback: () =>
+			scope.scene.particles.createSparkle(scope.x, scope.y, 1, 1, tint)
 		});
 	}
 }

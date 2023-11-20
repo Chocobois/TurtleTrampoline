@@ -20,6 +20,7 @@ export class Turtle extends Button {
 	private spriteSize: number;
 	public sprite: Phaser.GameObjects.Sprite;
 	private tween: Phaser.Tweens.Tween;
+	private flailTimer: number;
 	// private debug: Phaser.GameObjects.Ellipse;
 	// private debugLand: Phaser.GameObjects.Ellipse;
 
@@ -78,6 +79,7 @@ export class Turtle extends Button {
 		this.spriteSize = 200;
 		this.sprite = this.scene.add.sprite(0, 0, "turtle_waiting");
 		this.sprite.setScale(this.spriteSize / this.sprite.width);
+		this.flailTimer = 0;
 		// this.add(this.sprite);
 
 		/* Controls */
@@ -153,7 +155,13 @@ export class Turtle extends Button {
 							}
 						}
 						this.totalBounces += 1;
-						this.scene.sound.play("t_rustle",{ volume: 0.5 });
+						if (this.scene.game.hasFocus) {
+							const relSpeed = this.maxJumpSpeed - jumpSpeed;
+							this.scene.sound.play(
+								relSpeed < 1e-5 ? "spring" : "spring2",
+								{ volume: -0.02 * relSpeed + 0.3 }
+							);
+						}
 						this.emit("bounce");
 					}
 				}
@@ -213,7 +221,7 @@ export class Turtle extends Button {
 				this.physicsPosition.y = this.border.bottom - this.feetOffset;
 				if (this.lostBalance && !this.hasCrashed) {
 					this.hasCrashed = true;
-					this.scene.sound.play("fall", {volume: 0.25});
+					this.scene.sound.play("trip", {volume: 0.25});
 					this.scene.addDust(this.x, this.y-90);
 					this.emit("crashed");
 				}
@@ -253,6 +261,7 @@ export class Turtle extends Button {
 		// Animation
 		const squish = 0.02 * Math.sin((6 * time) / 1000);
 		this.setScale(1.0 + squish, 1.0 - squish);
+		this.flailTimer = Math.max(0, (this.flailTimer ?? 0) - delta);
 
 		const scale = this.spriteSize / this.sprite.width;
 		const facing = -Math.sign(this.physicsVelocity.x) || 1;
@@ -263,9 +272,19 @@ export class Turtle extends Button {
 			this.sprite.setTexture("turtle_jumping");
 		} else if (this.isGrounded) {
 			if (this.lostBalance) {
+				if (this.flailTimer > 0) {
+					const variant = this.flailTimer < 150 ? "2" : "3";
+					this.sprite.setTexture("turtle_stuck" + variant);
+				} else
 				this.sprite.setTexture("turtle_stuck");
 				this.setSpriteOrigin(0.5, 0.8);
 				this.sprite.angle = 10 * Math.sin((7 * time) / 1000);
+				if (this.scene.game.getFrame() % 400 == Phaser.Math.RND.integerInRange(0, 400)) {
+					this.flailTimer = 300;
+					if (this.scene.game.hasFocus)
+					this.scene.sound.play("flail", { volume: 0.2, pan: this.pan * 0.3 });
+				}
+				
 			} else if (Math.abs(this.physicsVelocity.x) > 0.1) {
 				const walkSprites = [
 					"turtle_walking",
@@ -373,7 +392,7 @@ export class Turtle extends Button {
 		}
 	}
 
-	doABarrelRoll() {
+	doABarrelRoll(duration=300, playSound=true) {
 		if (!this.tween || !this.tween.isActive()) {
 			this.tween = this.scene.tweens.add({
 				targets: this.sprite,
@@ -382,8 +401,11 @@ export class Turtle extends Button {
 					to: -this.sprite.scaleX,
 					ease: "Cubic.InOut",
 				},
-				duration: 300,
+				duration,
 				yoyo: true,
+			});
+			if (playSound) this.scene.sound.play("trick", {
+				volume: 0.4, pan: this.pan * 0.4
 			});
 		}
 	}
@@ -456,6 +478,7 @@ export class Turtle extends Button {
 		this.hasCrashed = false;
 		this.bounceCount = 0;
 		this.onDrag(pointer, this.x, this.y);
+		this.scene.sound.play("grab", { volume: 0.6, pan: this.pan * 0.2 });
 	}
 
 	onDrag(pointer: Phaser.Input.Pointer, dragX: number, dragY: number) {
@@ -472,5 +495,26 @@ export class Turtle extends Button {
 
 		this.dragVelocity.scale(0.5);
 		this.physicsVelocity.add(this.dragVelocity);
+		
+		const pV = this.physicsVelocity;
+
+		if (pV.length() > 75 && Math.abs(pV.x) > Math.abs(pV.y)) {
+			this.scene.sound.play("toss", {volume: 0.5, pan: this.pan * 0.3});
+			this.scene.time.addEvent(this.scene.particles.sparkleTrail(this, 40, 20, 0xDDAA00));
+			this.doABarrelRoll(100, false);
+		} else {
+			let intensity = 1;
+			if (pV.length() > 25) {
+				intensity = 2;
+			} else if (!this.isOnTrampoline) {
+				if (pointer.upY < 364) intensity++;
+				if (pointer.upY < 180) intensity++;
+			}
+			this.scene.sound.play("letgo" + intensity, {
+				volume: intensity / 10 + 0.5,
+				rate: (this.scene.H-pointer.upY) / this.scene.H * 0.4 + 0.7,
+				pan: this.pan * 0.2,
+			});
+		}
 	}
 }

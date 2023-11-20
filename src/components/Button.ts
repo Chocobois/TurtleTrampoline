@@ -109,6 +109,11 @@ export class Button extends Phaser.GameObjects.Container {
 		this._hold = value;
 	}
 
+	/** A value between -1 and 1 based on the object's X position */
+	get pan(): number {
+		return (this.x / this.scene.W) * 2 - 1;
+	}
+
 	onOut(pointer: Phaser.Input.Pointer, event: Phaser.Types.Input.EventData) {
 		this.hover = false;
 		this.hold = false;

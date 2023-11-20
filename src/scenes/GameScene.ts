@@ -2,6 +2,7 @@ import { BaseScene } from "@/scenes/BaseScene";
 import { OverworldState } from "@/scenes/OverworldState";
 import { ShopState } from "@/scenes/ShopState";
 import { UI } from "@/components/UI";
+import { Particles } from "@/components/Particles";
 import { TextParticle, TextParticleEffects } from "../components/TextParticle";
 import { Music } from "@/components/Music";
 import { MusicKey } from "@/components/MusicData";
@@ -20,6 +21,7 @@ export class GameScene extends BaseScene {
 	private state: State;
 	private health: number;
 
+	public particles: Particles;
 	//hacky rerooted text particles
 	public textParticles: TextParticle;
 
@@ -50,6 +52,7 @@ export class GameScene extends BaseScene {
 		this.overworld = new OverworldState(this);
 		this.shop = new ShopState(this);
 		this.ui = new UI(this);
+		this.particles = new Particles(this);
 		this.textParticles = new TextParticle(this);
 		this.musicTransition = { active: false, bar: 0 };
 
@@ -80,6 +83,7 @@ export class GameScene extends BaseScene {
 		this.overworld.update(time, delta);
 		this.shop.update(time, delta);
 		this.ui.update(time, delta);
+		this.particles.update(time, delta);
 		this.textParticles.update(time, delta);
 		this.updateMusic(this.overworld.turtles);
 	}
@@ -139,9 +143,9 @@ export class GameScene extends BaseScene {
 			return;
 		}
 
-		const bouncing = turtles.some(turtle => turtle.isOnTrampoline);
+		const bouncing = turtles.some(turtle => turtle.isOnTrampoline && turtle.bounceCount > 0);
 		const perished = turtles.every(turtle => turtle.hasCrashed);
-		const bouncingAll = turtles.every(turtle => turtle.isOnTrampoline);
+		const bouncingAll = turtles.every(turtle => turtle.isOnTrampoline  && turtle.bounceCount > 0);
 
 		// TODO: Smooth volume fades
 		this.musicJump.setMute(perished || !bouncing);

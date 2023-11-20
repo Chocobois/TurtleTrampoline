@@ -12,6 +12,8 @@ const images: Image[] = [
 	image("characters/turtle_jumping", "turtle_jumping"),
 	image("characters/turtle_scared", "turtle_scared"),
 	image("characters/turtle_stuck", "turtle_stuck"),
+	image("characters/turtle_stuck2", "turtle_stuck2"),
+	image("characters/turtle_stuck3", "turtle_stuck3"),
 	image("characters/turtle_waiting", "turtle_waiting"),
 	image("characters/turtle_waiting_angry", "turtle_waiting_angry"),
 	// For walking animation, do this: turtle_walking - turtle_walking1 - turtle_walking - turtle_walking2 -loop
@@ -35,6 +37,9 @@ const images: Image[] = [
 	// UI
 	image("ui/hud", "hud"),
 	image("ui/shop_buy_button", "buy_button"),
+	
+	// Particles
+	image("particles/sparkle", "p_sparkle"),
 
 	// Titlescreen
 	image("titlescreen/sky", "title_sky"),
@@ -59,9 +64,21 @@ const audios: Audio[] = [
 	music("transition", "m_transition"),
 	music("title", "m_main_menu"),
 	music("first", "m_first"),
-	sound("tree/rustle", "t_rustle", 0.5),
-	sound("turtle/score", "score", 0.5),
-	sound("turtle/fall", "fall", 0.75),
+	sound("shop/squish1", "squish1", 0.25),
+	sound("shop/squish2", "squish2", 0.25),
+	sound("turtle/score", "score", 0.7),
+	sound("turtle/trip", "trip", 0.25),
+	sound("turtle/land", "land", 0.25),
+	sound("turtle/miss", "miss", 0.5),
+	sound("turtle/toss", "toss", 0.25),
+	sound("turtle/grab", "grab", 0.3),
+	sound("turtle/trick", "trick", 0.4),
+	sound("turtle/flail", "flail", 0.05),
+	sound("turtle/letgo1", "letgo1", 0.3),
+	sound("turtle/letgo2", "letgo2", 0.4),
+	sound("turtle/letgo3", "letgo3", 0.3),
+	sound("trampoline/spring", "spring", 0.5),
+	sound("trampoline/spring2", "spring2", 0.4),
 ];
 
 /* Fonts */
