@@ -21,8 +21,7 @@ export class Turtle extends Button {
 	public sprite: Phaser.GameObjects.Sprite;
 	private tween: Phaser.Tweens.Tween;
 	private flailTimer: number;
-	// private debug: Phaser.GameObjects.Ellipse;
-	// private debugLand: Phaser.GameObjects.Ellipse;
+	private debug: Phaser.GameObjects.Graphics;
 
 	// Controls
 	public physicsPosition: Phaser.Math.Vector2;
@@ -34,8 +33,8 @@ export class Turtle extends Button {
 
 	// Walking
 	private ground: Phaser.Geom.Rectangle;
+	private onGround: boolean;
 	private walkTarget: Phaser.Geom.Point;
-	private walkTimer: number;
 
 	//Score
 	private baseScore: number;
@@ -70,17 +69,16 @@ export class Turtle extends Button {
 		scene.add.existing(this);
 		this.scene = scene;
 
-		// this.debugLand = this.scene.add
-		// 	.ellipse(0, 0, 30, 30, 0xff0000)
-		// 	.setDepth(1000);
-		// this.debug = this.scene.add.ellipse(0, 0, 20, 20, 0x007700).setDepth(1000);
+		this.debug = this.scene.add.graphics().setDepth(1000);
 
 		/* Sprite */
 		this.spriteSize = 200;
 		this.sprite = this.scene.add.sprite(0, 0, "turtle_waiting");
 		this.sprite.setScale(this.spriteSize / this.sprite.width);
-		this.flailTimer = 0;
+		this.sprite.play("turtle_waiting");
 		// this.add(this.sprite);
+
+		this.flailTimer = 0;
 
 		/* Controls */
 		this.physicsPosition = new Phaser.Math.Vector2(x, y);
@@ -96,9 +94,8 @@ export class Turtle extends Button {
 		/* Walking */
 		this.walkTarget = new Phaser.Geom.Point();
 		this.ground = ground;
+		this.onGround = true;
 		this.newWalkTarget();
-		this.border.bottom = this.walkTarget.y;
-		this.walkTimer = 0;
 
 		/* Trampoline */
 		this.trampoline = trampoline;
@@ -109,9 +106,9 @@ export class Turtle extends Button {
 		this.newJumpTarget();
 		this.maxJumpSpeed = Phaser.Math.RND.between(27, 31);
 		this.bounceCount = 0;
-		this.baseScore = 50+(Math.random()*100);
+		this.baseScore = 50 + Math.random() * 100;
 		this.multiplier = 1.0;
-		this.leaving =  false;
+		this.leaving = false;
 		this.fadeTimer = 0;
 		this.deleteFlag = false;
 		this.desiredBounces = 5 + Math.round(Math.random() * 15);
@@ -148,19 +145,17 @@ export class Turtle extends Button {
 						this.bounceCount += 1;
 						//this.scene.addScore(1);
 						this.multiplier += 0.05;
-						if(this.totalBounces >= this.desiredBounces)
-						{
-							if(this.multiplier >= 0.5) {
+						if (this.totalBounces >= this.desiredBounces) {
+							if (this.multiplier >= 0.5) {
 								this.multiplier -= 0.05;
 							}
 						}
 						this.totalBounces += 1;
 						if (this.scene.game.hasFocus) {
 							const relSpeed = this.maxJumpSpeed - jumpSpeed;
-							this.scene.sound.play(
-								relSpeed < 1e-5 ? "spring" : "spring2",
-								{ volume: -0.02 * relSpeed + 0.3 }
-							);
+							this.scene.sound.play(relSpeed < 1e-5 ? "spring" : "spring2", {
+								volume: -0.02 * relSpeed + 0.3,
+							});
 						}
 						this.emit("bounce");
 					}
@@ -185,6 +180,7 @@ export class Turtle extends Button {
 					this.physicsVelocity.y += 1;
 					if (this.isFallingTooQuickly) {
 						this.lostBalance = true;
+						this.newWalkTarget();
 					}
 				}
 			}
@@ -193,21 +189,31 @@ export class Turtle extends Button {
 			else if (this.isGrounded) {
 				// Walking
 				if (!this.lostBalance) {
-					const distance = this.walkTarget.x - this.physicsPosition.x;
-					if (Math.abs(distance) > 5) {
-						const walkingSpeed = 1.0;
-						this.physicsVelocity.x += walkingSpeed * Math.sign(distance);
+					if (!this.onGround) {
+						this.emit("land");
+						this.physicsPosition.y = this.border.bottom - this.feetOffset;
+						this.physicsVelocity.y = 0;
+					}
+					this.onGround = true;
+
+					const walkDirection = new Phaser.Math.Vector2(
+						this.walkTarget.x - this.physicsPosition.x,
+						this.walkTarget.y - this.physicsPosition.y - this.feetOffset
+					);
+					if (walkDirection.lengthSq() > 5) {
+						walkDirection.limit(1.5); // Walking speed
+						this.physicsVelocity.x += walkDirection.x;
+						this.physicsVelocity.y += walkDirection.y;
 					}
 
-					if(this.totalBounces > 0) {
-						if(this.fadeTimer > 0 && this.leaving) {
+					if (this.totalBounces > 0) {
+						if (this.fadeTimer > 0 && this.leaving) {
 							this.fadeTimer -= delta;
-							if(this.fadeTimer <= 0)
-							{
+							if (this.fadeTimer <= 0) {
 								this.fadeTimer = 0;
 								this.deleteFlag = true;
 							}
-							this.sprite.setAlpha(this.fadeTimer/MAX_FADE);
+							this.sprite.setAlpha(this.fadeTimer / MAX_FADE);
 						} else if (!this.leaving) {
 							this.turtleLeave();
 						}
@@ -215,14 +221,13 @@ export class Turtle extends Button {
 				}
 
 				// Friction
-				this.physicsVelocity.x = 0.5 * this.physicsVelocity.x;
-				// Stop fall
-				this.physicsVelocity.y = 0;
-				this.physicsPosition.y = this.border.bottom - this.feetOffset;
+				this.physicsVelocity.scale(0.5);
 				if (this.lostBalance && !this.hasCrashed) {
 					this.hasCrashed = true;
-					this.scene.sound.play("trip", {volume: 0.25});
-					this.scene.addDust(this.x, this.y-90);
+					this.physicsPosition.y = this.border.bottom - this.feetOffset;
+					this.physicsVelocity.y = 0;
+					this.scene.sound.play("trip", { volume: 0.25 });
+					this.scene.addDust(this.x, this.y - 90);
 					this.emit("crashed");
 				}
 			}
@@ -234,6 +239,7 @@ export class Turtle extends Button {
 
 				if (this.isFallingTooQuickly) {
 					this.lostBalance = true;
+					this.newWalkTarget();
 				}
 			}
 
@@ -246,8 +252,6 @@ export class Turtle extends Button {
 		// Movement
 		this.x += 0.5 * (this.physicsPosition.x - this.x);
 		this.y += 0.5 * (this.physicsPosition.y - this.y);
-		// this.debug.setPosition(this.x, this.physicsPosition.y + this.feetOffset);
-		// this.debugLand.setPosition(this.walkTarget.x, this.walkTarget.y);
 
 		if (this.hold) {
 			this.dragVelocity.set(
@@ -259,8 +263,6 @@ export class Turtle extends Button {
 		}
 
 		// Animation
-		const squish = 0.02 * Math.sin((6 * time) / 1000);
-		this.setScale(1.0 + squish, 1.0 - squish);
 		this.flailTimer = Math.max(0, (this.flailTimer ?? 0) - delta);
 
 		const scale = this.spriteSize / this.sprite.width;
@@ -269,44 +271,42 @@ export class Turtle extends Button {
 		this.sprite.angle = this.dragVelocity.x;
 
 		if (this.hold || this.isOnTrampoline) {
-			this.sprite.setTexture("turtle_jumping");
+			this.sprite.play("turtle_jumping", true);
 		} else if (this.isGrounded) {
 			if (this.lostBalance) {
-				if (this.flailTimer > 0) {
-					const variant = this.flailTimer < 150 ? "2" : "3";
-					this.sprite.setTexture("turtle_stuck" + variant);
-				} else
-				this.sprite.setTexture("turtle_stuck");
+				// if (this.flailTimer > 0) {
+				// 	const variant = this.flailTimer < 150 ? "2" : "3";
+				// 	this.sprite.play("turtle_stuck" + variant, true);
+				// } else {
+				// 	this.sprite.play("turtle_stuck", true);
+				// }
+				this.sprite.play("turtle_stuck", true);
 				this.setSpriteOrigin(0.5, 0.8);
 				this.sprite.angle = 10 * Math.sin((7 * time) / 1000);
-				if (this.scene.game.getFrame() % 400 == Phaser.Math.RND.integerInRange(0, 400)) {
+				if (
+					this.scene.game.getFrame() % 400 ==
+					Phaser.Math.RND.integerInRange(0, 400)
+				) {
 					this.flailTimer = 300;
 					if (this.scene.game.hasFocus)
-					this.scene.sound.play("flail", { volume: 0.2, pan: this.pan * 0.3 });
+						this.scene.sound.play("flail", {
+							volume: 0.2,
+							pan: this.pan * 0.3,
+						});
 				}
-				
-			} else if (Math.abs(this.physicsVelocity.x) > 0.1) {
-				const walkSprites = [
-					"turtle_walking",
-					"turtle_walking1",
-					"turtle_walking",
-					"turtle_walking2",
-				];
-				this.walkTimer += 1;
-				this.sprite.setTexture(
-					walkSprites[Math.floor(this.walkTimer / 20) % walkSprites.length]
-				);
+			} else if (this.onGround && this.physicsVelocity.lengthSq() > 0.1) {
+				this.sprite.play("turtle_walking", true);
 			} else {
-				this.sprite.setTexture("turtle_waiting");
+				this.sprite.play("turtle_waiting", true);
 				if (Math.random() < 0.01) {
 					this.newWalkTarget();
 				}
 			}
 		} else {
 			if (this.lostBalance) {
-				this.sprite.setTexture("turtle_scared");
+				this.sprite.play("turtle_scared", true);
 			} else {
-				this.sprite.setTexture("turtle_jumping");
+				this.sprite.play("turtle_jumping", true);
 			}
 		}
 
@@ -314,45 +314,90 @@ export class Turtle extends Button {
 		this.drawBounceDisplay();
 		// Depth sorting
 		this.sprite.setPosition(this.x, this.y);
-		let depth = 100;
+		let depth = 100 + (this.y + this.feetOffset) / 100;
 		if (this.isOnTrampoline) {
 			depth += this.jumpTarget.y / 100;
-		} else {
-			depth += this.walkTarget.y / 100;
 		}
 		if (this.hold) depth += 100;
 		this.sprite.setDepth(depth);
+
+		// let feetX = this.physicsPosition.x;
+		// let feetY = this.physicsPosition.y + this.feetOffset;
+		// this.debug.clear();
+		// this.debug.fillStyle(0xff0000);
+		// this.debug.lineStyle(2, 0xff0000);
+		// this.debug.fillEllipse(feetX, feetY, 20, 20);
+		// this.debug.fillEllipse(this.walkTarget.x, this.walkTarget.y, 20, 20);
+		// this.debug.beginPath();
+		// this.debug.moveTo(feetX, feetY);
+		// this.debug.lineTo(this.walkTarget.x, this.walkTarget.y);
+		// this.debug.stroke();
 	}
 
-	drawBounceDisplay()
-	{
-		if(this.isOnTrampoline)
-		{
-
+	drawBounceDisplay() {
+		if (this.isOnTrampoline) {
 			this.bounceDisplay.setVisible(true);
 			this.bounceDisplay.clear();
-			if(this.totalBounces > 0 && this.totalBounces < this.desiredBounces)
-			{
-				this.bounceDisplay.lineStyle(24, 0xFFFFFF, 0.75);
+			if (this.totalBounces > 0 && this.totalBounces < this.desiredBounces) {
+				this.bounceDisplay.lineStyle(24, 0xffffff, 0.75);
 				this.bounceDisplay.beginPath();
-				this.bounceDisplay.arc(0, 0, 175, Phaser.Math.DegToRad(0-90), Phaser.Math.DegToRad(360-(360*(this.totalBounces/this.desiredBounces))-90), true, 0);
+				this.bounceDisplay.arc(
+					0,
+					0,
+					175,
+					Phaser.Math.DegToRad(0 - 90),
+					Phaser.Math.DegToRad(
+						360 - 360 * (this.totalBounces / this.desiredBounces) - 90
+					),
+					true,
+					0
+				);
 				this.bounceDisplay.strokePath();
 				this.bounceDisplay.closePath();
-				this.bounceDisplay.lineStyle(16, 0x4BFF55, 1.0);
+				this.bounceDisplay.lineStyle(16, 0x4bff55, 1.0);
 				this.bounceDisplay.beginPath();
-				this.bounceDisplay.arc(0, 0, 175, Phaser.Math.DegToRad(0-90), Phaser.Math.DegToRad(360-(360*(this.totalBounces/this.desiredBounces))-90), true, 0);
+				this.bounceDisplay.arc(
+					0,
+					0,
+					175,
+					Phaser.Math.DegToRad(0 - 90),
+					Phaser.Math.DegToRad(
+						360 - 360 * (this.totalBounces / this.desiredBounces) - 90
+					),
+					true,
+					0
+				);
 				this.bounceDisplay.strokePath();
 				this.bounceDisplay.closePath();
-			} else if (this.totalBounces >= this.desiredBounces)
-			{
-				this.bounceDisplay.lineStyle(24, 0xFFFFFF, 0.75);
+			} else if (this.totalBounces >= this.desiredBounces) {
+				this.bounceDisplay.lineStyle(24, 0xffffff, 0.75);
 				this.bounceDisplay.beginPath();
-				this.bounceDisplay.arc(0, 0, 175, Phaser.Math.DegToRad(0-90), Phaser.Math.DegToRad(360-90), true, 0.01);
+				this.bounceDisplay.arc(
+					0,
+					0,
+					175,
+					Phaser.Math.DegToRad(0 - 90),
+					Phaser.Math.DegToRad(360 - 90),
+					true,
+					0.01
+				);
 				this.bounceDisplay.strokePath();
 				this.bounceDisplay.closePath();
-				this.bounceDisplay.lineStyle(16, ((this.totalBounces == this.desiredBounces) ? 0x4BFF55 : 0xFF1212), 1.0);
+				this.bounceDisplay.lineStyle(
+					16,
+					this.totalBounces == this.desiredBounces ? 0x4bff55 : 0xff1212,
+					1.0
+				);
 				this.bounceDisplay.beginPath();
-				this.bounceDisplay.arc(0, 0, 175, Phaser.Math.DegToRad(0-90), Phaser.Math.DegToRad(360-90), true, 0.01);
+				this.bounceDisplay.arc(
+					0,
+					0,
+					175,
+					Phaser.Math.DegToRad(0 - 90),
+					Phaser.Math.DegToRad(360 - 90),
+					true,
+					0.01
+				);
 				this.bounceDisplay.strokePath();
 				this.bounceDisplay.closePath();
 			}
@@ -361,15 +406,21 @@ export class Turtle extends Button {
 			this.bounceDisplay.clear();
 		}
 	}
-	turtleLeave(){
+	turtleLeave() {
 		this.leaving = true;
 		this.disableInteractive();
 		this.sprite.disableInteractive();
 		this.fadeTimer = MAX_FADE;
-		let s = Math.round(this.multiplier*this.baseScore);
+		let s = Math.round(this.multiplier * this.baseScore);
 		this.scene.addScore(s);
-		this.scene.sound.play("score", {volume: 1.0});
-		this.scene.addTextParticle(this.x, this.y-70, "green", `+ $` + `${s}!`, 80);
+		this.scene.sound.play("score", { volume: 1.0 });
+		this.scene.addTextParticle(
+			this.x,
+			this.y - 70,
+			"green",
+			`+ $` + `${s}!`,
+			80
+		);
 	}
 
 	/* Jumping */
@@ -392,7 +443,7 @@ export class Turtle extends Button {
 		}
 	}
 
-	doABarrelRoll(duration=300, playSound=true) {
+	doABarrelRoll(duration = 300, playSound = true) {
 		if (!this.tween || !this.tween.isActive()) {
 			this.tween = this.scene.tweens.add({
 				targets: this.sprite,
@@ -404,9 +455,11 @@ export class Turtle extends Button {
 				duration,
 				yoyo: true,
 			});
-			if (playSound) this.scene.sound.play("trick", {
-				volume: 0.4, pan: this.pan * 0.4
-			});
+			if (playSound)
+				this.scene.sound.play("trick", {
+					volume: 0.4,
+					pan: this.pan * 0.4,
+				});
 		}
 	}
 
@@ -417,12 +470,17 @@ export class Turtle extends Button {
 	}
 
 	newWalkTarget() {
-		let y = this.walkTarget.y;
-		Phaser.Geom.Rectangle.Random(this.ground, this.walkTarget);
-		if (y != 0) {
-			// Hack because it's hard to make them move up or down
-			this.walkTarget.y = y;
+		if (this.lostBalance) {
+			this.walkTarget.x = this.x;
+			this.walkTarget.y = this.ground.bottom;
 		}
+		else {
+			Phaser.Geom.Rectangle.Random(this.ground, this.walkTarget);
+			if (this.x < this.scene.CX) {
+				this.walkTarget.y = this.ground.bottom;
+			}
+		}
+		this.border.bottom = this.walkTarget.y;
 	}
 
 	newJumpTarget() {
@@ -446,7 +504,10 @@ export class Turtle extends Button {
 	}
 
 	get isGrounded() {
-		return this.physicsPosition.y + this.feetOffset >= this.border.bottom;
+		return (
+			this.onGround ||
+			this.physicsPosition.y + this.feetOffset >= this.border.bottom
+		);
 	}
 
 	get isOnTrampoline(): boolean {
@@ -474,6 +535,7 @@ export class Turtle extends Button {
 
 	onDragStart(pointer: Phaser.Input.Pointer, dragX: number, dragY: number) {
 		this.dragOffset.set(dragX, dragY);
+		this.onGround = false;
 		this.lostBalance = false;
 		this.hasCrashed = false;
 		this.bounceCount = 0;
@@ -495,12 +557,16 @@ export class Turtle extends Button {
 
 		this.dragVelocity.scale(0.5);
 		this.physicsVelocity.add(this.dragVelocity);
-		
+
+		this.newWalkTarget();
+
 		const pV = this.physicsVelocity;
 
 		if (pV.length() > 75 && Math.abs(pV.x) > Math.abs(pV.y)) {
-			this.scene.sound.play("toss", {volume: 0.5, pan: this.pan * 0.3});
-			this.scene.time.addEvent(this.scene.particles.sparkleTrail(this, 40, 20, 0xDDAA00));
+			this.scene.sound.play("toss", { volume: 0.5, pan: this.pan * 0.3 });
+			this.scene.time.addEvent(
+				this.scene.particles.sparkleTrail(this, 40, 20, 0xddaa00)
+			);
 			this.doABarrelRoll(100, false);
 		} else {
 			let intensity = 1;
@@ -512,7 +578,7 @@ export class Turtle extends Button {
 			}
 			this.scene.sound.play("letgo" + intensity, {
 				volume: intensity / 10 + 0.5,
-				rate: (this.scene.H-pointer.upY) / this.scene.H * 0.4 + 0.7,
+				rate: ((this.scene.H - pointer.upY) / this.scene.H) * 0.4 + 0.7,
 				pan: this.pan * 0.2,
 			});
 		}

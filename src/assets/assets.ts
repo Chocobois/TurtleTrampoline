@@ -11,9 +11,10 @@ const images: Image[] = [
 	// Characters
 	image("characters/turtle_jumping", "turtle_jumping"),
 	image("characters/turtle_scared", "turtle_scared"),
-	image("characters/turtle_stuck", "turtle_stuck"),
+	image("characters/turtle_stuck1", "turtle_stuck1"),
 	image("characters/turtle_stuck2", "turtle_stuck2"),
-	image("characters/turtle_stuck3", "turtle_stuck3"),
+	image("characters/turtle_stuck_sweat1", "turtle_stuck_sweat1"),
+	image("characters/turtle_stuck_sweat2", "turtle_stuck_sweat2"),
 	image("characters/turtle_waiting", "turtle_waiting"),
 	image("characters/turtle_waiting_angry", "turtle_waiting_angry"),
 	// For walking animation, do this: turtle_walking - turtle_walking1 - turtle_walking - turtle_walking2 -loop

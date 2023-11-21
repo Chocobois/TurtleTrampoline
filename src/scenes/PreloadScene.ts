@@ -74,9 +74,69 @@ export class PreloadScene extends BaseScene {
 	}
 
 	create() {
+		this.setupAnimations();
+
 		this.fade(true, 100, 0x000000);
 		this.addEvent(100, () => {
 			this.scene.start("GameScene");
+		});
+	}
+
+	setupAnimations() {
+		this.anims.create({
+			key: "turtle_jumping",
+			frames: [{ key: "turtle_jumping" }],
+		});
+
+		this.anims.create({
+			key: "turtle_scared",
+			frames: [{ key: "turtle_scared" }],
+		});
+
+		this.anims.create({
+			key: "turtle_stuck",
+			frames: [
+				{ key: "turtle_stuck1" },
+				{ key: "turtle_stuck2" },
+				{ key: "turtle_stuck_sweat1" },
+				{ key: "turtle_stuck_sweat2" },
+			],
+			frameRate: 3,
+			repeat: -1,
+		});
+
+		this.anims.create({
+			key: "turtle_waiting",
+			frames: [{ key: "turtle_waiting" }],
+		});
+
+		this.anims.create({
+			key: "turtle_waiting_angry",
+			frames: [{ key: "turtle_waiting_angry" }],
+		});
+
+		this.anims.create({
+			key: "turtle_walking",
+			frames: [
+				{ key: "turtle_walking1" },
+				{ key: "turtle_walking" },
+				{ key: "turtle_walking2" },
+				{ key: "turtle_walking" },
+			],
+			frameRate: 4,
+			repeat: -1,
+		});
+
+		this.anims.create({
+			key: "turtle_walking_angry",
+			frames: [
+				{ key: "turtle_walking_angry1" },
+				{ key: "turtle_walking_angry" },
+				{ key: "turtle_walking_angry2" },
+				{ key: "turtle_walking_angry" },
+			],
+			frameRate: 6,
+			repeat: -1,
 		});
 	}
 }

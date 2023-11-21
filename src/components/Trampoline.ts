@@ -10,6 +10,9 @@ export class Trampoline extends Button {
 	public zone: Phaser.Geom.Rectangle;
 	public surface: Phaser.Geom.Ellipse;
 
+	private squishTimer: number;
+	private recoil: number;
+
 	constructor(scene: GameScene, x: number, y: number) {
 		super(scene, x, y);
 		scene.add.existing(this);
@@ -43,6 +46,9 @@ export class Trampoline extends Button {
 			120
 		);
 
+		this.recoil = 0;
+		this.squishTimer = 0;
+
 		/* Input */
 		this.bindInteractive(this.sprite, true);
 		this.on("click", () => {
@@ -51,12 +57,20 @@ export class Trampoline extends Button {
 	}
 
 	update(time: number, delta: number) {
-		const holdX = 1.0 + 0.2 * this.holdSmooth;
-		const holdY = 1.0 - 0.1 * this.holdSmooth;
+		const holdX = 1.0 + 0.2 * (this.holdSmooth + this.recoil);
+		const holdY = 1.0 - 0.1 * (this.holdSmooth + this.recoil);
 		const squish = 0.01;
 		this.setScale(
-			(1.0 + squish * Math.sin(time / 200)) * holdX,
-			(1.0 + squish * Math.sin(-time / 200)) * holdY
+			(1.0 + squish * Math.sin(this.squishTimer / 200)) * holdX,
+			(1.0 + squish * Math.sin(-this.squishTimer / 200)) * holdY
 		);
+
+		this.squishTimer += delta;
+		this.recoil -= 0.15 * this.recoil;
+	}
+
+	addRecoil() {
+		this.recoil += 0.5;
+		this.squishTimer = 0;
 	}
 }

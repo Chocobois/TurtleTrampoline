@@ -27,10 +27,20 @@ export class OverworldState extends Phaser.GameObjects.Container {
 
 		this.ground = new Phaser.Geom.Rectangle(
 			0.5 * this.scene.W,
-			0.8 * this.scene.H,
+			0.7 * this.scene.H,
 			0.45 * this.scene.W,
-			0.1 * this.scene.H
+			0.2 * this.scene.H
 		);
+		// this.scene.add
+		// 	.rectangle(
+		// 		this.ground.x,
+		// 		this.ground.y,
+		// 		this.ground.width,
+		// 		this.ground.height,
+		// 		0xff0000,
+		// 		0.2
+		// 	)
+		// 	.setOrigin(0);
 
 		this.owner = new ShopOwner(scene, 0.4 * this.scene.W, 0.62 * scene.H);
 		this.add(this.owner);
@@ -39,7 +49,7 @@ export class OverworldState extends Phaser.GameObjects.Container {
 		this.add(this.trampoline);
 
 		this.turtles = [];
-		for (let i = 0; i < 5; i++) {
+		for (let i = 0; i < 10; i++) {
 			this.addTurtle();
 		}
 
@@ -57,8 +67,8 @@ export class OverworldState extends Phaser.GameObjects.Container {
 			this.scene.setState(State.Shop);
 		});
 		const expl = {
-			key: 'dust_explosion',
-			frames: 'dust',
+			key: "dust_explosion",
+			frames: "dust",
 			frameRate: 12,
 			showOnStart: true,
 			hideOnComplete: true,
@@ -85,10 +95,9 @@ export class OverworldState extends Phaser.GameObjects.Container {
 		return super.setVisible(value);
 	}
 
-	addDust(x: number, y: number)
-	{
-		let xpl = this.scene.add.sprite(x, y, 'dust_explosion');
-		xpl.play({ key: 'dust_explosion', delay: 0 });
+	addDust(x: number, y: number) {
+		let xpl = this.scene.add.sprite(x, y, "dust_explosion");
+		xpl.play({ key: "dust_explosion", delay: 0 });
 	}
 
 	addTurtle() {
@@ -98,8 +107,13 @@ export class OverworldState extends Phaser.GameObjects.Container {
 		this.add(turtle);
 		this.turtles.push(turtle);
 
+		turtle.on("land", () => {
+			// Land safely!
+		});
+
 		turtle.on("bounce", () => {
 			// Bounce!
+			this.trampoline.addRecoil();
 		});
 
 		turtle.on("crashed", () => {
